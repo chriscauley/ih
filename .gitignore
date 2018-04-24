@@ -1,0 +1,14 @@
+*~
+*.pyc
+static/*
+media/*
+
+.static/*
+.media/*
+db.sqlite3
+
+env/*
+.e/*
+.dev
+node_modules
+main/settings/local.py
