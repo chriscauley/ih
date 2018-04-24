@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>Idle Hands</title>
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link href="/static/ih/less/base.less" rel="stylesheet/less" type="text/css"></link>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+    <link type="image/x-icon" rel="shortcut icon" href="/static/favicon.ico" />
+  </head>
+  <div id="main">
+    {% block main %}{% endblock %}
+  </div>
+  <link href="http://static.unrest.io/.dist/unrest-built.css" rel="stylesheet"></link>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.4/svg.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.2.1/riot+compiler.min.js"></script>
+  <script src="http://static.unrest.io/.dist/unrest-built.js"></script>
+  <script src="http://static.unrest.io/.dist/canvas-built.js"></script>
+  <script src="http://static.unrest.io/lib/victor.js"></script>
+  <script src="http://static.unrest.io/contrib/controller.js"></script>
+  <script>uR.auth.reset = function() { return };</script>
+  <script src="/static/ih/main.js"></script>
+  <script src="/static/ih/router.js"></script>
+</html>
