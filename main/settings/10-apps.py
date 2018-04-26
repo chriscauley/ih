@@ -13,6 +13,8 @@ INSTALLED_APPS = (
   'compressor',
   'sorl.thumbnail',
 
+  'ih',
+  'lablackey.api',
 )
 
 # Django Suit configuration example

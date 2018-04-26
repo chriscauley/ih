@@ -7,7 +7,9 @@
     <link type="image/x-icon" rel="shortcut icon" href="/static/favicon.ico" />
   </head>
   <div id="main">
-    {% block main %}{% endblock %}
+    {% block main %}
+    <div id="content"></div>
+    {% endblock %}
   </div>
   <link href="http://static.unrest.io/.dist/unrest-built.css" rel="stylesheet"></link>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -20,5 +22,6 @@
   <script src="http://static.unrest.io/contrib/controller.js"></script>
   <script>uR.auth.reset = function() { return };</script>
   <script src="/static/ih/main.js"></script>
+  <script type="riot/tag" src="/static/ih/task.tag"></script>
   <script src="/static/ih/router.js"></script>
 </html>
