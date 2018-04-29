@@ -4,8 +4,7 @@ class Task extends uR.db.Model {
       schema: uR.db.schema.Task, // from json schema object
     });
     if (opts.values_list) {
-      var id,_values;
-      [id,..._values] = opts.values_list;
+      var [id,..._values] = opts.values_list;
       for (var i in opts.schema) {
         opts.schema[i].value = _values[i];
       }
@@ -16,13 +15,13 @@ class Task extends uR.db.Model {
       this.pk = this[this.META.pk_field] = id;
       if (manager._getPKs().indexOf(this.pk) == -1) {
         manager._addPK(this.pk);
-        console.log("saving",id);
         this.save();
       }
     }
   }
   __str() {
-    return `"${this.name}" ${this.per_time} time(s) ${this.getFrequencyDisplay()} `
+    var p = (this.per_time ==1)?"once":`${this.per_time} times`;
+    return `"${this.name}" ${p} ${this.getFrequencyDisplay()} `
   }
   getFrequencyDisplay() {
     if (!isNaN(this.frequency)) { return `every ${this.frequency} days` }
@@ -33,9 +32,26 @@ class Task extends uR.db.Model {
 uR.db.register("task",[Task]);
 
 <task-list>
-  <a href="#/new/Task/" class="{ uR.css.btn.primary } { uR.icon('plus') }"></a>
-  <div each={ task, i in tasks }>{ task }
+  <div class="container">
+    <div class="columns">
+      <div class="column col-12">
+        <div class="card">
+          <a class="card-body" href="#/new/Task/">
+            Add new Task
+            <i class="{ uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
+          </a>
+        </div>
+        <div class="card" each={ task, i in tasks }>
+          <div class="card-body">
+            <button class="btn btn-primary float-right { uR.icon('check') }" onclick={ markComplete }></button>
+            { task }
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <task-completion-list></task-completion-list>
 
   <script>
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
@@ -55,5 +71,27 @@ ajax_success(data) {
     }));
   }
 }
+markComplete(e) {
+  this.ajax({
+    url: "/api/schema/ih.TaskCompletionForm/",
+    method: "POST",
+    data: { task: e.item.task.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") }
+  })
+}
   </script>
 </task-list>
+
+<task-completion-list>
+  <div>
+
+  </div>
+
+  <script>
+this.on("mount",function() {
+  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 } })
+});
+ajax_success(data) {
+  console.log(data);
+}
+  </script>
+</task-completion-list>
