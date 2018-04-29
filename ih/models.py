@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.utils import timezone
 
 from lablackey.db.models import UserModel
 
@@ -25,5 +26,5 @@ class Task(UserModel):
 
 class TaskCompletion(UserModel):
   task = models.ForeignKey(Task)
-  completed = models.DateTimeField()
+  completed = models.DateTimeField(default=timezone.now)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
