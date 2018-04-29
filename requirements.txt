@@ -1,5 +1,7 @@
-django
+django==1.11.7
 django-suit
+djangorestframework
+six
 
 psycopg2
 django-compressor
@@ -9,7 +11,7 @@ pillow
 
 django-annoying
 
-python-todoist
+todoist-python
 
 markdown
 html2text
