@@ -1,7 +1,7 @@
-class Task extends uR.db.Model {
+class RemoteModel extends uR.db.Model {
   constructor(opts={}) {
     uR.defaults(opts,{ // this should be moved into a class that gets its structure remotely
-      schema: uR.db.schema.Task, // from json schema object
+      // should get schema from uR.db.schema
     });
     if (opts.values_list) {
       var [id,..._values] = opts.values_list;
@@ -9,7 +9,7 @@ class Task extends uR.db.Model {
         opts.schema[i].value = _values[i];
       }
     }
-    super(opts)
+    super(opts);
     if (opts.values_list) {
       var manager = this.constructor.objects;
       this.pk = this[this.META.pk_field] = id;
@@ -29,7 +29,21 @@ class Task extends uR.db.Model {
   }
 }
 
-uR.db.register("task",[Task]);
+class Task extends RemoteModel {
+  constructor(opts={}) {
+    opts.schema = opts.schema || uR.db.schema.Task;
+    super(opts);
+  }
+}
+class TaskCompletion extends RemoteModel {
+  constructor(opts={}) {
+    opts.schema = opts.schema || uR.db.schema.TaskCompletion;
+    super(opts);
+  }
+}
+
+
+uR.db.register("ih",[Task,TaskCompletion]);
 
 <task-list>
   <div class="container">
@@ -67,7 +81,8 @@ ajax_success(data) {
     uR.db.schema = uR.db.schema || {};
     uR.db.schema.Task = data.schema;
     window.tasks = this.tasks = this.page.results.map((r) => new Task({
-      values_list: r
+      values_list: r,
+      schema: data.schema,
     }));
   }
 }
@@ -82,8 +97,8 @@ markComplete(e) {
 </task-list>
 
 <task-completion-list>
-  <div>
-
+  <div each={ tc,i in task_completions }>
+    { tc.id }
   </div>
 
   <script>
@@ -91,7 +106,15 @@ this.on("mount",function() {
   this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 } })
 });
 ajax_success(data) {
-  console.log(data);
+  if (data.ur_pagination && data.ur_model) {
+    this.page = data.ur_pagination; // #! TODO: move to uR.AjaxMixin
+    uR.db.schema = uR.db.schema || {};
+    uR.db.schema.TaskCompletion = data.schema;
+    this.task_completions = this.page.results.map((r) => new TaskCompletion({
+      values_list: r,
+      schema: data.schema,
+    }));
+  }
 }
   </script>
 </task-completion-list>
