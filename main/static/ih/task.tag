@@ -7,10 +7,15 @@ class Task extends uR.db.Model {
     if (!isNaN(this.frequency)) { return `every ${this.frequency} days` }
     return uR.unslugify(this.frequency || "");
   }
+  getTimeDelta() {
+    if (!this.taskcompletion_set) { return }
+    var last = this.taskcompletion_set().pop();
+    if (!last) { return "Never" }
+    return last.completed.htimedelta();
+  }
 }
 class TaskCompletion extends uR.db.Model {
 }
-
 
 uR.db.register("ih",[Task,TaskCompletion]);
 
@@ -27,7 +32,10 @@ uR.db.register("ih",[Task,TaskCompletion]);
         <div class="card" each={ task, i in tasks }>
           <div class="card-body">
             <button class="btn btn-primary float-right { uR.icon('check') }" onclick={ markComplete }></button>
-            { task }
+            <div>
+              <div>{ task }</div>
+              <div>{ task.getTimeDelta() }</div>
+            </div>
           </div>
         </div>
       </div>
@@ -67,8 +75,17 @@ markComplete(e) {
 </task-list>
 
 <task-completion-list>
-  <div each={ tc,i in task_completions }>
-    { tc.task.name }
+  <div class="container">
+    <div class="columns">
+      <div class="column col-12">
+        <div class="card" each={ tc,i in task_completions }>
+          <div class="card-body">
+            <div>{ tc.task.name }</div>
+            <div>{ tc.completed.hdatetime() }</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -85,6 +102,7 @@ ajax_success(data) {
     this.task_completions = this.page.results.map((r) => new TaskCompletion({
       values_list: r,
     }));
+    this.parent.update();
   }
 }
   </script>
