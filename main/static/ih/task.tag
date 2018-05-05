@@ -57,7 +57,10 @@ markComplete(e) {
   this.ajax({
     url: "/api/schema/ih.TaskCompletionForm/",
     method: "POST",
-    data: { task: e.item.task.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") }
+    data: { task: e.item.task.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
+    success: function() {
+      this.tags['task-completion-list'].updateData();
+    }
   })
 }
   </script>
@@ -70,8 +73,11 @@ markComplete(e) {
 
   <script>
 this.on("mount",function() {
-  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 } })
+  this.updateData();
 });
+updateData() {
+  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 } })
+}
 ajax_success(data) {
   if (data.ur_pagination && data.ur_model) {
     this.page = data.ur_pagination; // #! TODO: move to uR.AjaxMixin
