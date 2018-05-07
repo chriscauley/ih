@@ -15,6 +15,9 @@ class Task extends uR.db.Model {
   }
 }
 class TaskCompletion extends uR.db.Model {
+  __str() {
+    return `${this.task.name} ${this.completed.hdatetime()}`;
+  }
 }
 
 uR.db.register("ih",[Task,TaskCompletion]);
@@ -34,7 +37,7 @@ uR.db.register("ih",[Task,TaskCompletion]);
             <button class="btn btn-primary float-right { uR.icon('check') }" onclick={ markComplete }></button>
             <div>
               <div>{ task }</div>
-              <div>{ task.getTimeDelta() }</div>
+              <div class="time-delta">{ task.getTimeDelta() }</div>
             </div>
           </div>
         </div>
@@ -51,6 +54,20 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
 this.on("mount",function() {
   this.ajax({ url: "/api/schema/ih.TaskForm/", data: { ur_page: 1 } })
 });
+this.on("update",function() {
+  // this presents a memory leak since it continuously makes new date strings and stores them in the lunch cache
+  // investigate before uncommenting
+  /*var minutes,seconds;
+  uR.forEach(this.root.querySelectorAll(".time-delta"),function(e) {
+    seconds = seconds || e.innerText.indexOf("second");
+    minutes = minutes || e.innerText.indexOf("minute");
+  });
+  var t;
+  if (seconds) { t= 1000; }
+  else if (minutes) { t = 60*1000; }
+  else { t = 10*60*1000; String.lunch.clear(); } //clear wipes the cache, which is a sort of memory leak
+  setTimeout(() => this.update(),t);*/
+})
 route() { }
 ajax_success(data) {
   if (data.ur_pagination) {

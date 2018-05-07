@@ -12,7 +12,8 @@ ALIGNMENT_CHOICES = [
   ("evil","evil"),
 ]
 
-FREQUENCY_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,"weekly","monthly","twice_monthly" ];
+FREQUENCY_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
+                      "weekly","twice_monthly","monthly","every_two_months","every_three_months" ];
 FREQUENCY_CHOICES = [(str(a),str(a)) for a in FREQUENCY_CHOICES]
 
 class Task(UserModel):
