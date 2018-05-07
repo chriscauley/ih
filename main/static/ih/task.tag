@@ -23,7 +23,7 @@ class TaskCompletion extends uR.db.Model {
 uR.db.register("ih",[Task,TaskCompletion]);
 
 <task-list>
-  <div class="container">
+  <div class="scroll-list active top container">
     <div class="columns">
       <div class="column col-12">
         <div class="card">
@@ -45,7 +45,7 @@ uR.db.register("ih",[Task,TaskCompletion]);
     </div>
   </div>
 
-  <task-completion-list></task-completion-list>
+  <task-completion-list class="scroll-list bottom inactive container"></task-completion-list>
 
   <script>
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
@@ -92,14 +92,12 @@ markComplete(e) {
 </task-list>
 
 <task-completion-list>
-  <div class="container">
-    <div class="columns">
-      <div class="column col-12">
-        <div class="card" each={ tc,i in task_completions }>
-          <div class="card-body">
-            <div>{ tc.task.name }</div>
-            <div>{ tc.completed.hdatetime() }</div>
-          </div>
+  <div class="columns">
+    <div class="column col-12">
+      <div class="card" each={ tc,i in task_completions }>
+        <div class="card-body">
+          <div>{ tc.task.name }</div>
+          <div>{ tc.completed.hdatetime() }</div>
         </div>
       </div>
     </div>
