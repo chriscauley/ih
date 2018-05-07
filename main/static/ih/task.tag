@@ -1,11 +1,11 @@
 class Task extends uR.db.Model {
   __str() {
     var p = (this.per_time ==1)?"once":`${this.per_time} times`;
-    return `"${this.name}" ${p} ${this.getFrequencyDisplay()} `
+    return `"${this.name}" ${p} ${this.getIntervalDisplay()} `
   }
-  getFrequencyDisplay() {
-    if (!isNaN(this.frequency)) { return `every ${this.frequency} days` }
-    return uR.unslugify(this.frequency || "");
+  getIntervalDisplay() {
+    if (!isNaN(this.interval)) { return `every ${this.interval} days` }
+    return uR.unslugify(this.interval || "");
   }
   getTimeDelta() {
     if (!this.taskcompletion_set) { return }

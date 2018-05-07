@@ -12,16 +12,16 @@ ALIGNMENT_CHOICES = [
   ("evil","evil"),
 ]
 
-FREQUENCY_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
+INTERVAL_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
                       "weekly","twice_monthly","monthly","every_two_months","every_three_months" ];
-FREQUENCY_CHOICES = [(str(a),str(a)) for a in FREQUENCY_CHOICES]
+INTERVAL_CHOICES = [(str(a),str(a)) for a in INTERVAL_CHOICES]
 
 class Task(UserModel):
   json_fields = ['id', #! TODO should be in self.as_json and self.as_json_list
-                 'name','per_time','frequency','alignment']
+                 'name','per_time','interval','alignment']
   name = models.CharField(max_length=128)
   per_time = models.IntegerField(default=1)
-  frequency = models.CharField(max_length=32,choices=FREQUENCY_CHOICES)
+  interval = models.CharField(max_length=32,choices=INTERVAL_CHOICES)
   alignment = models.CharField(max_length=32,choices=ALIGNMENT_CHOICES)
   __unicode__ = lambda self: self.name
 
