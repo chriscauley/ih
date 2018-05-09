@@ -4,7 +4,8 @@ uR.router.add({
     uR.mountElement("ur-form",{
       schema: "/api/schema/ih."+data.matches[1]+"Form/",
       method: "POST",
-      ajax_success: function() { uR.route("/") }
+      ajax_success: () => uR.route("/"),
+      cancel_function: () => uR.route("/"),
     });
   },
   "^/$": uR.router.default_route,
