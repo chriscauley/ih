@@ -1,3 +1,6 @@
+body {
+  --gutter: 0.4rem;
+}
 #main {
   background: #ddd;
   height: 100%;
@@ -21,22 +24,47 @@
   overflow: scroll;
 }
 
-@one-height: 80px;
+@one-height: 70px;
+@trigger-height: 26px;
 task-list,task-completion-list {
   display: block;
   position: relative;
 }
-.scroll-list{
-  &.active {
-    &.bottom { padding-top: @one-height; }
-    &.top { padding-bottom: @one-height; }
-  }
+.scroll-list {
+  &.bottom { padding-top: @one-height+@trigger-height; }
+  &.top { padding-bottom: @one-height+@trigger-height; }
   &.inactive {
-    height: @one-height;
+    max-height: @one-height;
     overflow: hidden;
     position: absolute;
     width: 100%;
-    &.bottom { bottom: 0; }
-    &.top { top: 0; }
+    z-index: 2;
+    &.bottom { padding-top: 0; bottom: 0; }
+    &.top { padding-bottom: 0; top: 0; }
+    .hide-inactive { display: none; }
   }
+}
+
+.scroll-list-trigger {
+  background: white;
+  border: 1px solid;
+  bottom: @one-height;
+  cursor: pointer;
+  height: @trigger-height;
+  position: absolute;
+  text-align: center;
+  margin: 0 ~"calc(var(--gutter))";
+  width: ~"calc(100% - 2 * var(--gutter))";
+  z-index: 3;
+  &:before { content: "^^^"; }
+  .scroll-list.inactive + & {
+    bottom: auto;
+    top: @one-height;
+    &:before { content: "vvv"; }
+  }
+}
+
+.fa.btn { // .fa buttons are not vertically center (eg fa-plus)
+  display: flex;
+  align-items: center;
 }
