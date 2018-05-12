@@ -19,6 +19,7 @@ body {
 
 .column > .card {
   margin-bottom: 0.4rem;
+  &:last-child { margin-bottom: 0; }
 }
 
 .scroll-list {
@@ -31,6 +32,7 @@ body {
 task-list,task-completion-list {
   display: block;
   position: relative;
+  .column { background: white; }
 }
 .scroll-list {
   &.bottom { padding-top: @one-height+@trigger-height; }

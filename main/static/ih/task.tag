@@ -31,8 +31,8 @@ uR.db.register("ih",[Task,TaskCompletion]);
 <task-list>
   <div class="scroll-list active top container">
     <div class="columns">
-      <div class="column col-12">
-        <div class="card hide-inactive">
+      <div class="column col-12 hide-inactive">
+        <div class="card">
           <a class="card-body" href="#/new/Task/">
             Add new Task
             <i class="{ uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
@@ -108,8 +108,12 @@ markComplete(e) {
     <div class="column col-12">
       <div class="card bg-secondary" each={ tc,i in task_completions }>
         <div class="card-body">
-          <div>{ tc.task.name }</div>
-          <div>{ tc.completed.hdatetime() }</div>
+          <button class="{ uR.css.btn.cancel } float-right { uR.icon(tc.icon || 'trash') }"
+                  onclick={ delete }></button>
+          <div>
+            <div>{ tc.task.name }</div>
+            <div>{ tc.completed.hdatetime() }</div>
+          </div>
         </div>
       </div>
     </div>
@@ -120,7 +124,7 @@ this.on("mount",function() {
   this.updateData();
 });
 updateData() {
-  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 } })
+  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 },  })
 }
 ajax_success(data) {
   if (data.ur_pagination && data.ur_model) {
@@ -130,6 +134,10 @@ ajax_success(data) {
       values_list: r,
     }));
     this.parent.update();
+  }
+  if (this.root.classList.contains("inactive")) {
+    var e = this.root;
+    setTimeout(() => e.scroll(0,e.scrollHeight), 100);
   }
 }
   </script>
