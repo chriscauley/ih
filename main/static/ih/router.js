@@ -8,6 +8,16 @@ uR.router.add({
       cancel_function: () => uR.route("/"),
     });
   },
+  "#/edit/([^/]+)/(\\d+)/": function(pathname,data) {
+    var model_name = data.matches[1];
+    var pk = data.matches[2];
+    uR.mountElement("ur-form",{
+      schema: `/api/schema/ih.${model_name}Form/${pk}/`,
+      method: "POST",
+      ajax_success: () => uR.route("/"),
+      cancel_function: () => uR.route("/"),
+    });
+  },
   "^/$": uR.router.default_route,
 });
 
