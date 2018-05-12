@@ -61,7 +61,7 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
     this.page = {results: []};
 })
 this.on("mount",function() {
-  this.ajax({ url: "/api/schema/ih.TaskForm/", data: { ur_page: 1 } })
+  this.ajax({ url: "/api/schema/ih.TaskForm/", data: { ur_page: 0 } })
 });
 switchActive(e) {
   uR.forEach(this.root.querySelectorAll(".scroll-list"),(e) => e.classList.toggle("inactive"));
@@ -106,7 +106,10 @@ markComplete(e) {
 <task-completion-list>
   <div class="columns">
     <div class="column col-12">
-      <div class="card bg-secondary" each={ tc,i in task_completions }>
+      <div class="card bg-secondary" each={ tc,i in task_completions } ur-id={ tc.id }>
+        <div onclick={ undelete } class="card-body undo-delete bg-error" if={ tc.deleted }>
+          Undo <i class="fa fa-undo float-right"></i>
+        </div>
         <div class="card-body">
           <button class="{ uR.css.btn.cancel } float-right { uR.icon(tc.icon || 'trash') }"
                   onclick={ delete }></button>
@@ -124,7 +127,7 @@ this.on("mount",function() {
   this.updateData();
 });
 updateData() {
-  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 1 },  })
+  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 0 },  })
 }
 ajax_success(data) {
   if (data.ur_pagination && data.ur_model) {
@@ -139,6 +142,24 @@ ajax_success(data) {
     var e = this.root;
     setTimeout(() => e.scroll(0,e.scrollHeight), 100);
   }
+}
+delete(e) {
+  var tc = e.item.tc;
+  this.ajax({
+    method:  "DELETE",
+    url: "/api/schema/ih.TaskCompletionForm/"+tc.id+"/",
+    success: () => { tc.deleted = true; },
+    target: this.root.querySelector(`[ur-id="${tc.id}"]`),
+  });
+}
+undelete(e) {
+  var tc = e.item.tc;
+  this.ajax({
+    method:  "DELETE",
+    url: "/api/schema/ih.TaskCompletionForm/"+tc.id+"/?undo",
+    success: () => { tc.deleted = false; },
+    target: this.root.querySelector(`[ur-id="${tc.id}"]`),
+  });
 }
   </script>
 </task-completion-list>
