@@ -16,7 +16,14 @@ INTERVAL_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
                       "weekly","twice_monthly","monthly","every_two_months","every_three_months" ];
 INTERVAL_CHOICES = [(str(a),str(a)) for a in INTERVAL_CHOICES]
 
-class Task(UserModel):
+class JsonModel(UserModel):
+  created = models.DateTimeField(auto_now_add=True)
+  updated = models.DateTimeField(auto_now=True)
+  deleted = models.DateTimeField(null=True,blank=True)
+  class Meta:
+    abstract = True
+
+class Task(JsonModel):
   json_fields = ['id', #! TODO should be in self.as_json and self.as_json_list
                  'name','per_time','interval','alignment']
   name = models.CharField(max_length=128)
@@ -25,7 +32,7 @@ class Task(UserModel):
   alignment = models.CharField(max_length=32,choices=ALIGNMENT_CHOICES)
   __unicode__ = lambda self: self.name
 
-class TaskCompletion(UserModel):
+class TaskCompletion(JsonModel):
   task = models.ForeignKey(Task)
   completed = models.DateTimeField(default=timezone.now)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
