@@ -17,11 +17,27 @@ body {
   width: 400px;
 }
 
+[ur-mode=add] {
+  .hide-add { display: none; }
+}
+[ur-mode=edit] {
+  .hide-edit { display: none; }
+}
+
 .column > .card {
   position: relative;
   &:last-child { margin-bottom: 0; }
   &,&:first-child { margin-bottom: 0.4rem; }
 }
+
+.card-body-sm, .card-body-sm:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.8rem 0;
+}
+
+.pointer { cursor: pointer; }
 
 .undo-delete {
   align-items: center;

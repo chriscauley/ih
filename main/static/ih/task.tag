@@ -1,6 +1,17 @@
-class Task extends uR.db.Model {
+class TaskGroup extends uR.db.Model {
+  constructor(opts={}) {
+    super(opts);
+  }
   __str() {
-    var p = (this.per_time ==1)?"once":`${this.per_time} times`;
+    return this.name;
+  }
+}
+
+class Task extends uR.db.Model {
+  constructor(opts={}) {
+    super(opts);
+  }
+  __str() {
     return this.name;
   }
   getIntervalDisplay() {
@@ -21,28 +32,50 @@ class Task extends uR.db.Model {
   }
 }
 class TaskCompletion extends uR.db.Model {
+  constructor(opts={}) {
+    super(opts);
+  }
   __str() {
     return `${this.task.name} ${this.completed.hdatetime()}`;
   }
 }
 
-uR.db.register("ih",[Task,TaskCompletion]);
+uR.db.register("ih",[Task,TaskCompletion,TaskGroup]);
 
 <task-list>
-  <div class="scroll-list active top container">
+  <div class="scroll-list active top container" ur-mode={ edit_mode?"edit":"add" }>
     <div class="columns">
-      <div class="column col-12 hide-inactive">
+      <div class="column col-4 hide-inactive">
         <div class="card">
-          <a class="card-body" href="#/new/Task/">
-            Add new Task
-            <i class="{ uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
+          <a class="card-body card-body-sm" href="#/new/Task/">
+            <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
+            Task
           </a>
+        </div>
+      </div>
+      <div class="column col-4 hide-inactive">
+        <div class="card">
+          <a class="card-body card-body-sm" href="#/new/TaskGroup/">
+            <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
+            Group
+          </a>
+        </div>
+      </div>
+      <div class="column col-4 hide-inactive">
+        <div class="card">
+          <div class="card-body card-body-sm pointer" onclick={ toggleEdit }>
+            <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
+            <div class="btn-group btn-group-block">
+              <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
+              <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
+            </div>
+          </div>
         </div>
       </div>
       <div class="column col-6" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body">
-            <button class="btn btn-primary float-right { uR.icon('check') }" onclick={ markComplete }></button>
+            <button class="btn btn-primary float-right { uR.icon(edit_mode?'edit':'check') }" onclick={ markComplete }></button>
             <div>
               <div>{ task }</div>
               <div class="time-delta">{ task.getTimeDelta() }</div>
@@ -63,6 +96,9 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
 this.on("mount",function() {
   this.ajax({ url: "/api/schema/ih.TaskForm/", data: { ur_page: 0 } })
 });
+toggleEdit(e) {
+  this.edit_mode = !this.edit_mode;
+}
 switchActive(e) {
   uR.forEach(this.root.querySelectorAll(".scroll-list"),(e) => e.classList.toggle("inactive"));
 }
@@ -91,10 +127,12 @@ ajax_success(data) {
   }
 }
 markComplete(e) {
+  var id = e.item.task.id;
+  if (this.edit_mode) { return uR.route(`#/edit/Task/${id}/`); }
   this.ajax({
     url: "/api/schema/ih.TaskCompletionForm/",
     method: "POST",
-    data: { task: e.item.task.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
+    data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
     success: function() {
       this.tags['task-completion-list'].updateData();
     }
