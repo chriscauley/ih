@@ -17,13 +17,13 @@ class UserJsonModelForm(RequestUserModelForm):
 class TaskGroupForm(UserJsonModelForm):
   class Meta:
     model = TaskGroup
-    fields = ['name']
+    fields = ['name','icon']
 
 class TaskForm(UserJsonModelForm):
   # field_overrides = { 'per_time': 'per_time' }
   class Meta:
     model = Task
-    fields = ['name','per_time','interval','alignment','group']
+    fields = ['name','per_time','interval','alignment','group','icon']
 
 class TaskCompletionForm(UserJsonModelForm):
   class Meta:

@@ -24,6 +24,11 @@ class JsonModel(UserModel):
   class Meta:
     abstract = True
 
+class TaskGroup(JsonModel):
+  name = models.CharField(max_length=64)
+  icon = models.CharField(max_length=64,null=True,blank=True)
+  __unicode__ = lambda self: self.name
+
 class Task(JsonModel):
   json_fields = ['id', #! TODO should be in self.as_json and self.as_json_list
                  'name','per_time','interval','alignment', 'group']
@@ -32,6 +37,7 @@ class Task(JsonModel):
   per_time = models.IntegerField(default=1)
   interval = models.CharField(max_length=32,choices=INTERVAL_CHOICES)
   alignment = models.CharField(max_length=32,choices=ALIGNMENT_CHOICES)
+  icon = models.CharField(max_length=64,null=True,blank=True)
   __unicode__ = lambda self: self.name
 
 class TaskCompletion(JsonModel):
@@ -44,7 +50,3 @@ class TaskCompletion(JsonModel):
 class NoSQLModel(JsonModel):
   data = JSONField(default=dict)
   ur_model = models.CharField(max_length=255)
-
-class TaskGroup(JsonModel):
-  name = models.CharField(max_length=64)
-  __unicode__ = lambda self: self.name
