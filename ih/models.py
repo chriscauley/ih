@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from lablackey.db.models import UserModel
 
+
 #! todo: move both these choices into the front end app
 
 ALIGNMENT_CHOICES = [
@@ -25,7 +26,8 @@ class JsonModel(UserModel):
 
 class Task(JsonModel):
   json_fields = ['id', #! TODO should be in self.as_json and self.as_json_list
-                 'name','per_time','interval','alignment']
+                 'name','per_time','interval','alignment', 'group']
+  group = models.ForeignKey("TaskGroup",null=True,blank=True)
   name = models.CharField(max_length=128)
   per_time = models.IntegerField(default=1)
   interval = models.CharField(max_length=32,choices=INTERVAL_CHOICES)
@@ -36,3 +38,13 @@ class TaskCompletion(JsonModel):
   task = models.ForeignKey(Task)
   completed = models.DateTimeField(default=timezone.now)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
+
+
+# currently unused
+class NoSQLModel(JsonModel):
+  data = JSONField(default=dict)
+  ur_model = models.CharField(max_length=255)
+
+class TaskGroup(JsonModel):
+  name = models.CharField(max_length=64)
+  __unicode__ = lambda self: self.name

@@ -5,7 +5,8 @@ from django.contrib import admin
 
 from models import Task, TaskCompletion
 
-# Register your models here.
-
 admin.register(Task)(admin.ModelAdmin)
-admin.register(TaskCompletion)(admin.ModelAdmin)
+
+@admin.register(TaskCompletion)
+class TaskCompletionAdmin(admin.ModelAdmin):
+  list_display = ["__unicode__","deleted"]
