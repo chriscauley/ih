@@ -72,7 +72,7 @@ uR.db.register("ih",[Task,TaskCompletion,TaskGroup]);
           </div>
         </div>
       </div>
-      <div class="column col-6" each={ task, i in tasks }>
+      <div class="column col-6" each={ task, i in ih.tasks }>
         <div class="card">
           <div class="card-body">
             <button class="btn btn-primary float-right { uR.icon(edit_mode?'edit':'check') }" onclick={ markComplete }></button>
@@ -94,7 +94,8 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
     this.page = {results: []};
 })
 this.on("mount",function() {
-  this.ajax({ url: "/api/schema/ih.TaskForm/", data: { ur_page: 0 } })
+var self = this;
+setTimeout(function() { self.update() },1000)
 });
 toggleEdit(e) {
   this.edit_mode = !this.edit_mode;
@@ -117,26 +118,19 @@ this.on("update",function() {
   setTimeout(() => this.update(),t);*/
 })
 route() { }
-ajax_success(data) {
-  if (data.ur_pagination) {
-    this.page = data.ur_pagination; // #! TODO: move to uR.AjaxMixin
-    uR.db.schema.Task = data.schema;
-    window.tasks = this.tasks = this.page.results.map((r) => new Task({
-      values_list: r,
-    }));
-  }
-}
 markComplete(e) {
   var id = e.item.task.id;
-  if (this.edit_mode) { return uR.route(`#/edit/Task/${id}/`); }
+  if (this.edit_mode) { return uR.route("#/edit/Task/"+id+"/"); }
   this.ajax({
     url: "/api/schema/ih.TaskCompletionForm/",
     method: "POST",
     data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
-    success: function() {
-      this.tags['task-completion-list'].updateData();
-    }
-  })
+    success: function(data) {
+      var tc = new TaskCompletion({ values_list: data.values_list });
+      ih.taskcompletions.push(tc);
+      uR.forEach(ih.tasks,function (task) { if (task.id == tc.task.id) { task.cache_delta = undefined } })
+    },
+  });
 }
   </script>
 </task-list>
@@ -144,12 +138,12 @@ markComplete(e) {
 <task-completion-list>
   <div class="columns">
     <div class="column col-12">
-      <div class="card bg-secondary" each={ tc,i in task_completions } ur-id={ tc.id }>
+      <div class="card bg-secondary" each={ tc,i in ih.taskcompletions } ur-id={ tc.id }>
         <div onclick={ undelete } class="card-body undo-delete bg-error" if={ tc.deleted }>
           Undo <i class="fa fa-undo float-right"></i>
         </div>
         <div class="card-body">
-          <button class="{ uR.css.btn.cancel } float-right { uR.icon(tc.icon || 'trash') }"
+          <button class="{ uR.css.btn.cancel } float-right { uR.icon(edit_mode?'edit':'trash') }"
                   onclick={ delete }></button>
           <div>
             <div>{ tc.task.name }</div>
@@ -161,28 +155,16 @@ markComplete(e) {
   </div>
 
   <script>
-this.on("mount",function() {
-  this.updateData();
-});
-updateData() {
-  this.ajax({ url: "/api/schema/ih.TaskCompletionForm/", data: { ur_page: 0 },  })
-}
-ajax_success(data) {
-  if (data.ur_pagination && data.ur_model) {
-    this.page = data.ur_pagination; // #! TODO: move to uR.AjaxMixin
-    uR.db.schema.TaskCompletion = data.schema;
-    this.task_completions = this.page.results.map((r) => new TaskCompletion({
-      values_list: r,
-    }));
-    this.parent.update();
-  }
+this.on("update",function() {
+  this.edit_mode = this.parent.edit_mode;
   if (this.root.classList.contains("inactive")) {
     var e = this.root;
     setTimeout(() => e.scroll(0,e.scrollHeight), 100);
   }
-}
+});
 delete(e) {
   var tc = e.item.tc;
+  if (this.edit_mode) { return uR.route("#/edit/TaskCompletion/"+tc.id+"/"); }
   this.ajax({
     method:  "DELETE",
     url: "/api/schema/ih.TaskCompletionForm/"+tc.id+"/",
