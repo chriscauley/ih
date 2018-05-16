@@ -20,8 +20,8 @@ class Task extends uR.db.Model {
   }
   getTimeDelta() {
     if (this.cache_delta && (this.expire > new Date())) { return this.cache_delta }
-    if (!this.taskcompletion_set) { return }
-    var last = this.taskcompletion_set().pop();
+    if (!this.goal_set) { return }
+    var last = this.goal_set().pop();
     if (!last) { return "Never" }
     this.cache_delta = last.completed.htimedelta();
     var expiry_time = 1000;
@@ -31,7 +31,7 @@ class Task extends uR.db.Model {
     return this.cache_delta;
   }
 }
-class TaskCompletion extends uR.db.Model {
+class Goal extends uR.db.Model {
   constructor(opts={}) {
     super(opts);
   }
@@ -40,7 +40,7 @@ class TaskCompletion extends uR.db.Model {
   }
 }
 
-uR.db.register("ih",[Task,TaskCompletion,TaskGroup]);
+uR.db.register("ih",[Task,Goal,TaskGroup]);
 
 <task-list>
   <div class="scroll-list active top container" ur-mode={ edit_mode?"edit":"add" }>
@@ -122,12 +122,12 @@ markComplete(e) {
   var id = e.item.task.id;
   if (this.edit_mode) { return uR.route("#/edit/Task/"+id+"/"); }
   this.ajax({
-    url: "/api/schema/ih.TaskCompletionForm/",
+    url: "/api/schema/ih.GoalForm/",
     method: "POST",
     data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
     success: function(data) {
-      var tc = new TaskCompletion({ values_list: data.values_list });
-      ih.taskcompletions.push(tc);
+      var tc = new Goal({ values_list: data.values_list });
+      ih.goals.push(tc);
       uR.forEach(ih.tasks,function (task) { if (task.id == tc.task.id) { task.cache_delta = undefined } })
     },
   });
@@ -138,7 +138,7 @@ markComplete(e) {
 <task-completion-list>
   <div class="columns">
     <div class="column col-12">
-      <div class="card bg-secondary" each={ tc,i in ih.taskcompletions } ur-id={ tc.id }>
+      <div class="card bg-secondary" each={ tc,i in ih.goals } ur-id={ tc.id }>
         <div onclick={ undelete } class="card-body undo-delete bg-error" if={ tc.deleted }>
           Undo <i class="fa fa-undo float-right"></i>
         </div>
@@ -164,10 +164,10 @@ this.on("update",function() {
 });
 delete(e) {
   var tc = e.item.tc;
-  if (this.edit_mode) { return uR.route("#/edit/TaskCompletion/"+tc.id+"/"); }
+  if (this.edit_mode) { return uR.route("#/edit/Goal/"+tc.id+"/"); }
   this.ajax({
     method:  "DELETE",
-    url: "/api/schema/ih.TaskCompletionForm/"+tc.id+"/",
+    url: "/api/schema/ih.GoalForm/"+tc.id+"/",
     success: () => { tc.deleted = true; },
     target: this.root.querySelector(`[ur-id="${tc.id}"]`),
   });
@@ -176,7 +176,7 @@ undelete(e) {
   var tc = e.item.tc;
   this.ajax({
     method:  "DELETE",
-    url: "/api/schema/ih.TaskCompletionForm/"+tc.id+"/?undo",
+    url: "/api/schema/ih.GoalForm/"+tc.id+"/?undo",
     success: () => { tc.deleted = false; },
     target: this.root.querySelector(`[ur-id="${tc.id}"]`),
   });

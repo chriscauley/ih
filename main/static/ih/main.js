@@ -5,7 +5,7 @@ uR.ready(function() {
   var results = {};
   var models = [];
   ih.tasks = [];
-  ih.taskcompletions = [];
+  ih.goals = [];
   ih.taskgroups = [];
   function loadModel(name) {
     models.push(name);
@@ -28,6 +28,6 @@ uR.ready(function() {
   }
   loadModel('TaskGroup');
   loadModel('Task');
-  loadModel('TaskCompletion');
+  loadModel('Goal');
   uR.config.name_overrides.completed = { type: "datetime-local" };
 });

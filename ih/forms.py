@@ -2,7 +2,7 @@ from django.utils import timezone
 
 from lablackey.forms import RequestUserModelForm
 
-from models import Task, TaskCompletion, TaskGroup
+from models import Task, Goal, TaskGroup
 
 class UserJsonModelForm(RequestUserModelForm):
   def undelete(self):
@@ -25,7 +25,7 @@ class TaskForm(UserJsonModelForm):
     model = Task
     fields = ['name','per_time','interval','alignment','group','icon']
 
-class TaskCompletionForm(UserJsonModelForm):
+class GoalForm(UserJsonModelForm):
   class Meta:
-    model = TaskCompletion
+    model = Goal
     fields = ['task','completed']

@@ -40,7 +40,7 @@ class Task(JsonModel):
   icon = models.CharField(max_length=64,null=True,blank=True)
   __unicode__ = lambda self: self.name
 
-class TaskCompletion(JsonModel):
+class Goal(JsonModel):
   task = models.ForeignKey(Task)
   completed = models.DateTimeField(default=timezone.now)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
