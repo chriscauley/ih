@@ -126,9 +126,9 @@ markComplete(e) {
     method: "POST",
     data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
     success: function(data) {
-      var tc = new Goal({ values_list: data.values_list });
-      ih.goals.push(tc);
-      uR.forEach(ih.tasks,function (task) { if (task.id == tc.task.id) { task.cache_delta = undefined } })
+      var goal = new Goal({ values_list: data.values_list });
+      ih.goals.push(goal);
+      uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
     },
   });
 }
@@ -138,16 +138,16 @@ markComplete(e) {
 <task-completion-list>
   <div class="columns">
     <div class="column col-12">
-      <div class="card bg-secondary" each={ tc,i in ih.goals } ur-id={ tc.id }>
-        <div onclick={ undelete } class="card-body undo-delete bg-error" if={ tc.deleted }>
+      <div class="card bg-secondary" each={ goal,i in ih.goals } ur-id={ goal.id }>
+        <div onclick={ undelete } class="card-body undo-delete bg-error" if={ goal.deleted }>
           Undo <i class="fa fa-undo float-right"></i>
         </div>
         <div class="card-body">
           <button class="{ uR.css.btn.cancel } float-right { uR.icon(edit_mode?'edit':'trash') }"
                   onclick={ delete }></button>
           <div>
-            <div>{ tc.task.name }</div>
-            <div>{ tc.completed.hdatetime() }</div>
+            <div>{ goal.task.name }</div>
+            <div>{ goal.completed.hdatetime() }</div>
           </div>
         </div>
       </div>
@@ -163,22 +163,22 @@ this.on("update",function() {
   }
 });
 delete(e) {
-  var tc = e.item.tc;
-  if (this.edit_mode) { return uR.route("#/edit/Goal/"+tc.id+"/"); }
+  var goal = e.item.goal;
+  if (this.edit_mode) { return uR.route("#/edit/Goal/"+goal.id+"/"); }
   this.ajax({
     method:  "DELETE",
-    url: "/api/schema/ih.GoalForm/"+tc.id+"/",
-    success: () => { tc.deleted = true; },
-    target: this.root.querySelector(`[ur-id="${tc.id}"]`),
+    url: "/api/schema/ih.GoalForm/"+goal.id+"/",
+    success: () => { goal.deleted = true; },
+    target: this.root.querySelector(`[ur-id="${goal.id}"]`),
   });
 }
 undelete(e) {
-  var tc = e.item.tc;
+  var goal = e.item.goal;
   this.ajax({
     method:  "DELETE",
-    url: "/api/schema/ih.GoalForm/"+tc.id+"/?undo",
-    success: () => { tc.deleted = false; },
-    target: this.root.querySelector(`[ur-id="${tc.id}"]`),
+    url: "/api/schema/ih.GoalForm/"+goal.id+"/?undo",
+    success: () => { goal.deleted = false; },
+    target: this.root.querySelector(`[ur-id="${goal.id}"]`),
   });
 }
   </script>
