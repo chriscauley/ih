@@ -42,9 +42,10 @@ class Task(JsonModel):
 
 class Goal(JsonModel):
   task = models.ForeignKey(Task)
-  completed = models.DateTimeField(default=timezone.now)
+  targeted = models.DateTimeField(default=timezone.now)
+  started = models.DateTimeField(null=True,blank=True)
+  completed = models.DateTimeField(null=True,blank=True)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
-
 
 # currently unused
 class NoSQLModel(JsonModel):

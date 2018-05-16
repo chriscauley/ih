@@ -28,4 +28,4 @@ class TaskForm(UserJsonModelForm):
 class GoalForm(UserJsonModelForm):
   class Meta:
     model = Goal
-    fields = ['task','completed']
+    fields = ['task','targeted','started','completed']

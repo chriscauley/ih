@@ -3,7 +3,7 @@ django-suit
 djangorestframework
 six
 
-psycopg2
+psycopg2-binary
 django-compressor
 sorl-thumbnail
 -e git+https://github.com/chriscauley/Django-Crop-Override-Field.git#egg=django-crop-override-field
