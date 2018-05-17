@@ -7,6 +7,20 @@ class TaskGroup extends uR.db.Model {
   }
 }
 
+var FIRST_TIMES = {
+  "Arm Curls": 9,
+  "Beer": 19,
+  "Eat": 10,
+  "Smoke Cigarette": 11,
+}
+
+var MINUTES_BETWEEN = {
+  "Arm Curls": 3,
+  "Beer": 90,
+  "Eat": 6*60,
+  "Smoke Cigarette": 180,
+}
+
 class Task extends uR.db.Model {
   constructor(opts={}) {
     super(opts);
@@ -18,12 +32,60 @@ class Task extends uR.db.Model {
     if (!isNaN(this.interval)) { return `every ${this.interval} days` }
     return uR.unslugify(this.interval || "");
   }
+  getNotCompleted(goals) {
+    // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
+    return (goals || this.goal_set()).filter((g) => !g.completed)[0];
+  }
   getTimeDelta() {
     if (this.cache_delta && (this.expire > new Date())) { return this.cache_delta }
     if (!this.goal_set) { return }
-    var last = this.goal_set().pop();
-    if (!last) { return "Never" }
-    this.cache_delta = last.completed.htimedelta();
+
+    // There should only be one incomplete goalfor any task, if not create it
+    var goals = _.sortBy(this.goal_set(),'targeted');
+    var next = this.getNotCompleted(goals);
+    var now = nextimate = moment();
+    var today = now.format("YYYY-MM-DD");
+    var times_today = goals.filter((g) => g.completed && (g.completed.moment().format("YYYY-MM-DD") == today)).length;
+
+    if (!next) {
+      var last = goals[goals.length-1]; // last goal is most recent
+      if (last) { // previous completion exists
+        var nextimate = moment(last.completed);
+        if (this.per_time != 1) { // things that should be done more than once on target day
+          if (today == nextimate.format("YYYY-MM-DD")) { // goal completed today
+            nextimate = nextimate.add((MINUTES_BETWEEN[this.name] || 180),'minutes');
+            if (today != nextimate.format("YYYY-MM-DD") // nextimate is tomorrow
+                || times_today >= this.per_time) { // or task completed enough today
+              // so move into future however many intervals it should be
+              nextimate = moment().startOf("day").add(this.interval,"days").set("hour",FIRST_TIMES[this.name] || 0);
+            }
+          } else { // no goal completed today
+            nextimate = moment().startOf("day").set("hour",FIRST_TIMES[this.name] || 0);
+          }
+        }
+        else if (this.interval == "monthly") {
+          nextimate.add(1,'months');
+        } else if (this.interval == "every_two_months") {
+          nextimate.add(2,'months');
+        } else {
+          nextimate.add(this.interval,"days")
+        }
+      }
+      console.log("calculating next time for ...",this.name);
+      uR.ajax({
+        url: "/api/schema/ih.GoalForm/",
+        method: "POST",
+        data: { task: this.id, targeted: nextimate.format("YYYY-MM-DD HH:mm") },
+        success: function(data) {
+          var goal = new Goal({ values_list: data.values_list });
+          ih.goals.push(goal);
+          uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
+        },
+      });
+      return "Calculating... (please refresh)";
+    }
+    this.cache_delta = next.targeted.htimedelta();
+    if (times_today) { this.cache_delta += " x"+times_today }
     var expiry_time = 1000;
     if (this.cache_delta.indexOf("h") != -1) { expiry_time = 60*60*1000 }
     if (this.cache_delta.indexOf("m") != -1) { expiry_time = 60*1000 }
@@ -122,7 +184,7 @@ markComplete(e) {
   var id = e.item.task.id;
   if (this.edit_mode) { return uR.route("#/edit/Task/"+id+"/"); }
   this.ajax({
-    url: "/api/schema/ih.GoalForm/",
+    url: "/api/schema/ih.GoalForm/"+e.item.task.getNotCompleted().id+"/",
     method: "POST",
     data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
     success: function(data) {
@@ -147,7 +209,6 @@ markComplete(e) {
                   onclick={ delete }></button>
           <div>
             <div>{ goal.task.name }</div>
-            <div>{ goal.completed.hdatetime() }</div>
           </div>
         </div>
       </div>

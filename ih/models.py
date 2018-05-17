@@ -14,7 +14,7 @@ ALIGNMENT_CHOICES = [
 ]
 
 INTERVAL_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
-                      "weekly","twice_monthly","monthly","every_two_months","every_three_months" ];
+                     "twice_monthly","monthly","every_two_months","every_three_months" ];
 INTERVAL_CHOICES = [(str(a),str(a)) for a in INTERVAL_CHOICES]
 
 class JsonModel(UserModel):
