@@ -23,9 +23,9 @@ class TaskForm(UserJsonModelForm):
   # field_overrides = { 'per_time': 'per_time' }
   class Meta:
     model = Task
-    fields = ['name','per_time','interval','alignment','group','icon']
+    fields = ['name','per_time','interval','alignment','group','icon','data']
 
 class GoalForm(UserJsonModelForm):
   class Meta:
     model = Goal
-    fields = ['task','targeted','started','completed']
+    fields = ['task','targeted','started','completed','data']

@@ -38,16 +38,18 @@ class Task(JsonModel):
   interval = models.CharField(max_length=32,choices=INTERVAL_CHOICES)
   alignment = models.CharField(max_length=32,choices=ALIGNMENT_CHOICES)
   icon = models.CharField(max_length=64,null=True,blank=True)
+  data = JSONField(default=dict,null=True,blank=True)
   __unicode__ = lambda self: self.name
 
 class Goal(JsonModel):
   task = models.ForeignKey(Task)
   targeted = models.DateTimeField(default=timezone.now)
   started = models.DateTimeField(null=True,blank=True)
+  data = JSONField(default=dict,null=True,blank=True)
   completed = models.DateTimeField(null=True,blank=True)
   __unicode__ = lambda self: "%s %s @ %s"%(self.user,self.task,self.completed)
 
 # currently unused
 class NoSQLModel(JsonModel):
-  data = JSONField(default=dict)
+  data = JSONField(default=dict,null=True,blank=True)
   ur_model = models.CharField(max_length=255)
