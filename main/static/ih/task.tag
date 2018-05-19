@@ -1,3 +1,5 @@
+uR.db.ModelManager = uR.db.MapModelManager;
+
 class TaskGroup extends uR.db.Model {
   constructor(opts={}) {
     super(opts);
@@ -71,7 +73,6 @@ class Task extends uR.db.Model {
           nextimate.add(this.interval,"days")
         }
       }
-      console.log("calculating next time for ...",this.name);
       uR.ajax({
         url: "/api/schema/ih.GoalForm/",
         method: "POST",
@@ -79,7 +80,8 @@ class Task extends uR.db.Model {
         success: function(data) {
           var goal = new Goal({ values_list: data.values_list });
           ih.goals.push(goal);
-          uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
+          goal.task.cache_delta = undefined;
+          uR.router._current_tag.update()
         },
       });
       return "Calculating... (please refresh)";

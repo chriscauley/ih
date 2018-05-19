@@ -18,7 +18,7 @@ uR.ready(function() {
         localStorage.clear(); // #! TODO: local storage currently caches deleted items.
         uR.forEach(models,function(model_name) {
           var data = results[model_name];
-          uR.db.schema[model_name] = data.schema;
+          uR.db.schema["ih."+model_name] = data.schema;
           ih[model_name.toLowerCase()+"s"] = data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
             values_list: r,
           }));
@@ -30,4 +30,6 @@ uR.ready(function() {
   loadModel('Task');
   loadModel('Goal');
   uR.config.name_overrides.completed = { type: "datetime-local" };
+  uR.config.name_overrides.started = { type: "datetime-local" };
+  uR.config.name_overrides.targeted = { type: "datetime-local" };
 });
