@@ -1,5 +1,4 @@
 uR.db.ModelManager = uR.db.MapModelManager;
-
 class TaskGroup extends uR.db.Model {
   constructor(opts={}) {
     super(opts);
@@ -23,12 +22,18 @@ var MINUTES_BETWEEN = {
   "Smoke Cigarette": 180,
 }
 
-class Task extends uR.db.Model {
+class Task extends uR.db.DataModel {
   constructor(opts={}) {
     super(opts);
   }
   __str() {
     return this.name;
+  }
+  createSchema() {
+    this.data_fields = [
+      { name: "task_type", choices: ["",'counter','timer'], type: "select", required: false },
+    ];
+    super.createSchema();
   }
   getIntervalDisplay() {
     if (!isNaN(this.interval)) { return `every ${this.interval} days` }
@@ -95,7 +100,7 @@ class Task extends uR.db.Model {
     return this.cache_delta;
   }
 }
-class Goal extends uR.db.Model {
+class Goal extends uR.db.DataModel {
   constructor(opts={}) {
     super(opts);
   }
