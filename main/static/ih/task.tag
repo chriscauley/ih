@@ -52,8 +52,12 @@ class Task extends uR.db.DataModel {
     var next = this.getNotCompleted(goals);
     var now = nextimate = moment();
     var today = now.format("YYYY-MM-DD");
-    var times_today = goals.filter((g) => g.completed && (g.completed.moment().format("YYYY-MM-DD") == today)).length;
-
+    var yesterday = now.clone().add(-1,"days").format("YYYY-MM-DD");;
+    var week_ago = now.clone().add(-7,"days").format("YYYY-MM-DD");;
+    var _completed = (g) => g.completed && g.completed.moment().format("YYYY-MM-DD");
+    var times_today = goals.filter((g) => _completed(g) == today).length;
+    var times_yesterday = goals.filter((g) => _completed(g) == yesterday).length;
+    var times_week_ago = goals.filter((g) => _completed(g) <= week_ago).length;
     if (!next) {
       var last = goals[goals.length-1]; // last goal is most recent
       if (last) { // previous completion exists
@@ -92,7 +96,10 @@ class Task extends uR.db.DataModel {
       return "Calculating... (please refresh)";
     }
     this.cache_delta = next.targeted.htimedelta();
-    if (times_today) { this.cache_delta += " x"+times_today }
+    if (times_today) { this.cache_delta += " Tx"+times_today }
+    if (times_yesterday) { this.cache_delta += " Yx"+times_yesterday }
+    if (times_week_ago) { this.cache_delta += " Wx"+times_week_ago }
+
     var expiry_time = 1000;
     if (this.cache_delta.indexOf("h") != -1) { expiry_time = 60*60*1000 }
     if (this.cache_delta.indexOf("m") != -1) { expiry_time = 60*1000 }
@@ -134,7 +141,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
         <div class="card">
           <div class="card-body card-body-sm pointer" onclick={ toggleEdit }>
             <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
-            <div class="btn-group btn-group-block">
+            <div style="display:flex;">
               <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
               <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
             </div>
