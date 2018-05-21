@@ -1,4 +1,6 @@
-window.ih = {}
+window.ih = {
+  ready: uR.Ready(),
+};
 uR.config.form_prefix = "#";
 uR.ready(function() {
   var done = 0;
@@ -23,6 +25,7 @@ uR.ready(function() {
             values_list: r,
           }));
         });
+        ih.ready.start();
       }
     });
   }

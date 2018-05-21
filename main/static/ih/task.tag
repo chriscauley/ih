@@ -123,7 +123,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
     <div class="columns">
       <div class="column col-4 hide-inactive">
         <div class="card">
-          <a class="card-body card-body-sm" href="#/new/Task/">
+          <a class="card-body card-body-sm" href={ uR.db.ih.Task.admin_new_url }>
             <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
             Task
           </a>
@@ -131,7 +131,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </div>
       <div class="column col-4 hide-inactive">
         <div class="card">
-          <a class="card-body card-body-sm" href="#/new/TaskGroup/">
+          <a class="card-body card-body-sm" href={ uR.db.ih.TaskGroup.admin_new_url }>
             <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
             Group
           </a>
@@ -196,7 +196,7 @@ this.on("update",function() {
 route() { }
 markComplete(e) {
   var id = e.item.task.id;
-  if (this.edit_mode) { return uR.route("#/edit/Task/"+id+"/"); }
+  if (this.edit_mode) { return e.item.task.edit(); }
   this.ajax({
     url: "/api/schema/ih.GoalForm/"+e.item.task.getNotCompleted().id+"/",
     method: "POST",
@@ -239,7 +239,7 @@ this.on("update",function() {
 });
 delete(e) {
   var goal = e.item.goal;
-  if (this.edit_mode) { return uR.route("#/edit/Goal/"+goal.id+"/"); }
+  if (this.edit_mode) { return goal.edit() }
   this.ajax({
     method:  "DELETE",
     url: "/api/schema/ih.GoalForm/"+goal.id+"/",
