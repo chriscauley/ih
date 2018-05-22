@@ -3,6 +3,10 @@ window.ih = {
 };
 uR.config.form_prefix = "#";
 uR.ready(function() {
+  String.lunch.hdate = "M/D 'YY";
+  String.lunch.hdate_no_year = "M/D";
+  String.lunch.htime_hour = "H:mm";
+  String.lunch.at = "@";
   var done = 0;
   var results = {};
   var models = [];
