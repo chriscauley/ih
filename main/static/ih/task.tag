@@ -43,6 +43,17 @@ class Task extends uR.db.DataModel {
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
     return (goals || this.goal_set()).filter((g) => !g.completed)[0];
   }
+  adminPostRender() {
+    var options = {
+      parent: document.querySelector("ur-form .post-form"),
+    }
+    var riot_options = {
+      results: this.goal_set().map(function(goal) {
+        return { url: goal.getAdminUrl(), fields: [goal.targeted.hdatetime(),goal.completed && goal.completed.hdatetime()] };
+      }),
+    }
+    uR.newElement("ur-pagination",options,riot_options);
+  }
   getTimeDelta() {
     if (this.cache_delta && (this.expire > new Date())) { return this.cache_delta }
     if (!this.goal_set) { return }
