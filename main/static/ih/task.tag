@@ -35,6 +35,10 @@ class Task extends uR.db.DataModel {
     ];
     super.createSchema();
   }
+  getIcon() {
+    if (this.task_type == "timer") { return "clock-o"; }
+    return "check";
+  }
   getIntervalDisplay() {
     if (!isNaN(this.interval)) { return `every ${this.interval} days` }
     return uR.unslugify(this.interval || "");
@@ -117,6 +121,18 @@ class Task extends uR.db.DataModel {
     this.expire = new Date().valueOf() + expiry_time;
     return this.cache_delta;
   }
+  click(e,riot_tag) {
+    riot_tag.ajax({
+      url: "/api/schema/ih.GoalForm/"+this.getNotCompleted().id+"/",
+      method: "POST",
+      data: { task: this.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
+      success: function(data) {
+        var goal = new Goal({ values_list: data.values_list });
+        ih.goals.push(goal);
+        uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
+      },
+    });
+  };
 }
 class Goal extends uR.db.DataModel {
   constructor(opts={}) {
@@ -162,7 +178,8 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       <div class="column col-6" each={ task, i in ih.tasks }>
         <div class="card">
           <div class="card-body">
-            <button class="btn btn-primary float-right { uR.icon(edit_mode?'edit':'check') }" onclick={ markComplete }></button>
+            <button class="btn btn-primary float-right { uR.icon(task.icon) }"
+                    onclick={ clickTask }></button>
             <div>
               <div>{ task }</div>
               <div class="time-delta">{ task.getTimeDelta() }</div>
@@ -191,6 +208,10 @@ switchActive(e) {
   uR.forEach(this.root.querySelectorAll(".scroll-list"),(e) => e.classList.toggle("inactive"));
 }
 this.on("update",function() {
+  var edit_mode = this.edit_mode;
+  uR.forEach(ih.tasks,function(task) {
+    task.icon = edit_mode?"edit":task.getIcon();
+  });
   // this presents a memory leak since it continuously makes new date strings and stores them in the lunch cache
   // investigate before uncommenting
   /*var minutes,seconds;
@@ -205,19 +226,10 @@ this.on("update",function() {
   setTimeout(() => this.update(),t);*/
 })
 route() { }
-markComplete(e) {
+clickTask(e) {
   var id = e.item.task.id;
   if (this.edit_mode) { return e.item.task.edit(); }
-  this.ajax({
-    url: "/api/schema/ih.GoalForm/"+e.item.task.getNotCompleted().id+"/",
-    method: "POST",
-    data: { task: id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
-    success: function(data) {
-      var goal = new Goal({ values_list: data.values_list });
-      ih.goals.push(goal);
-      uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
-    },
-  });
+  e.item.task.click(e,this);
 }
   </script>
 </task-list>
