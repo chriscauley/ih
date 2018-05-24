@@ -195,7 +195,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
 
   <script>
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
-    this.page = {results: []};
+  this.page = {results: []};
 })
 this.on("mount",function() {
 var self = this;
@@ -209,21 +209,10 @@ switchActive(e) {
 }
 this.on("update",function() {
   var edit_mode = this.edit_mode;
-  uR.forEach(ih.tasks,function(task) {
+  ih.tasks = _.chain(ih.tasks).each(function(task) {
+    task.getTimeDelta();
     task.icon = edit_mode?"edit":task.getIcon();
-  });
-  // this presents a memory leak since it continuously makes new date strings and stores them in the lunch cache
-  // investigate before uncommenting
-  /*var minutes,seconds;
-  uR.forEach(this.root.querySelectorAll(".time-delta"),function(e) {
-    seconds = seconds || e.innerText.indexOf("second");
-    minutes = minutes || e.innerText.indexOf("minute");
-  });
-  var t;
-  if (seconds) { t= 1000; }
-  else if (minutes) { t = 60*1000; }
-  else { t = 10*60*1000; String.lunch.clear(); } //clear wipes the cache, which is a sort of memory leak
-  setTimeout(() => this.update(),t);*/
+  }).sortBy("last_time").sortBy("target_time").value();
 })
 route() { }
 clickTask(e) {
