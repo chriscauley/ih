@@ -149,7 +149,8 @@ class Goal extends uR.db.DataModel {
     super(opts);
   }
   __str() {
-    return `${this.task.name} ${this.completed.hdatetime()}`;
+    var time_string = this.completed?"DONE: "+this.completed.hdatetime():"t"+this.targeted.htimedelta();
+    return `${this.task.name} ${time_string}`
   }
 }
 
