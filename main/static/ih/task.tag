@@ -73,8 +73,10 @@ class Task extends uR.db.DataModel {
     var times_today = goals.filter((g) => _completed(g) == today).length;
     var times_yesterday = goals.filter((g) => _completed(g) == yesterday).length;
     var times_week_ago = goals.filter((g) => _completed(g) <= week_ago).length;
+    var last = goals[goals.length-1]; // last goal is most recent
     if (!next) {
-      var last = goals[goals.length-1]; // last goal is most recent
+      // TODO: this._calculating is hacky. Figure out why this is being called twice
+      if (this._calculating) { "Calculating... (please refresh)"; }
       if (last) { // previous completion exists
         var nextimate = moment(last.completed);
         if (this.per_time != 1) { // things that should be done more than once on target day
@@ -106,11 +108,19 @@ class Task extends uR.db.DataModel {
           ih.goals.push(goal);
           goal.task.cache_delta = undefined;
           uR.router._current_tag.update()
-        },
+        }.bind(this),
       });
+      this._calculating = true;
       return "Calculating... (please refresh)";
     }
-    this.cache_delta = next.targeted.htimedelta();
+    this._calculating = false;
+    this.cache_delta = "";
+    if (this.alignment =="neutral") {
+      var last = goals.filter(g => g.completed ).pop();
+      this.last_time = last && last.completed.unixtime();
+    } else {
+      this.target_time = next.targeted.unixtime();
+    }
     if (times_today) { this.cache_delta += " Tx"+times_today }
     if (times_yesterday) { this.cache_delta += " Yx"+times_yesterday }
     if (times_week_ago) { this.cache_delta += " Wx"+times_week_ago }
@@ -183,6 +193,8 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
             <div>
               <div>{ task }</div>
               <div class="time-delta">{ task.getTimeDelta() }</div>
+              <span if={ task.last_time } data-target_time={ task.last_time }>Last: </span>
+              <span if={ task.target_time } data-target_time={ task.target_time }></span>
             </div>
           </div>
         </div>
