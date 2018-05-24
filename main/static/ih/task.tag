@@ -194,6 +194,8 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
             <div>
               <div>{ task }</div>
               <div class="time-delta">{ task.getTimeDelta() }</div>
+              <button class="btn btn-primary float-left { uR.icon('pencil') }" if={edit_mode}
+                      onclick={ editLastGoal }></button>
               <span if={ task.last_time } data-target_time={ task.last_time }>Last: </span>
               <span if={ task.target_time } data-target_time={ task.target_time }></span>
             </div>
@@ -226,7 +228,10 @@ this.on("update",function() {
     task.getTimeDelta();
     task.icon = edit_mode?"edit":task.getIcon();
   }).sortBy("last_time").sortBy("target_time").value();
-})
+});
+editLastGoal(e) {
+  e.item.task.getNotCompleted().edit()
+}
 route() { }
 clickTask(e) {
   var id = e.item.task.id;
