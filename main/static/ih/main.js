@@ -3,6 +3,10 @@ window.ih = {
 };
 uR.config.form_prefix = "#";
 uR.ready(function() {
+  uR.config.name_overrides.completed = { type: "datetime-local" };
+  uR.config.name_overrides.started = { type: "datetime-local" };
+  uR.config.name_overrides.targeted = { type: "datetime-local" };
+
   String.lunch.hdate = "M/D 'YY";
   String.lunch.hdate_no_year = "M/D";
   String.lunch.htime_hour = "H:mm";
