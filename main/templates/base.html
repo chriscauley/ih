@@ -1,3 +1,4 @@
+{% load compress %}
 <html>
   <head>
     <title>Idle Hands</title>
@@ -24,6 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.4/svg.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.10.1/riot+compiler.min.js"></script>
+  {% compress js %}
   <script src="/static/unrest/.dist/unrest-built.js"></script>
   <script src="/static/unrest/.dist/canvas-built.js"></script>
   <script src="/static/unrest/.dist/admin-built.js"></script>
@@ -31,6 +33,7 @@
   <script>uR.auth_enabled = true;</script>
   <script src="/static/ih/main.js"></script>
   <script src="/static/ih/icon.js"></script>
-  <script type="riot/tag" src="/static/ih/task.tag"></script>
   <script src="/static/ih/router.js"></script>
+  {% endcompress %}
+  <script type="riot/tag" src="/static/ih/task.tag"></script>
 </html>
