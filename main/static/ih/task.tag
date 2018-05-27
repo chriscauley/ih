@@ -76,7 +76,7 @@ class Task extends uR.db.DataModel {
     var last = goals[goals.length-1]; // last goal is most recent
     if (!next) {
       // TODO: this._calculating is hacky. Figure out why this is being called twice
-      if (this._calculating) { "Calculating... (please refresh)"; }
+      if (this._calculating) { return "Calculating... (please refresh)"; }
       if (last) { // previous completion exists
         var nextimate = moment(last.completed);
         if (this.per_time != 1) { // things that should be done more than once on target day
@@ -99,6 +99,7 @@ class Task extends uR.db.DataModel {
           nextimate.add(this.interval,"days")
         }
       }
+      var self = this;
       uR.ajax({
         url: "/api/schema/ih.GoalForm/",
         method: "POST",
@@ -108,12 +109,12 @@ class Task extends uR.db.DataModel {
           ih.goals.push(goal);
           goal.task.cache_delta = undefined;
           uR.router._current_tag.update()
-        }.bind(this),
+          self._calculating = false;
+        },
       });
       this._calculating = true;
       return "Calculating... (please refresh)";
     }
-    this._calculating = false;
     this.cache_delta = "";
     if (this.alignment =="neutral") {
       var last = goals.filter(g => g.completed ).pop();

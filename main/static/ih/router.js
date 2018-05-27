@@ -1,4 +1,4 @@
-uR.router.default_route = uR.router.routeElement("task-list");
+uR.router.default_route = uR.auth.loginRequired(uR.router.routeElement("task-list"));
 uR.router.add({
   "^/$": uR.router.default_route,
 });
