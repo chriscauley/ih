@@ -65,6 +65,7 @@ class Task extends uR.db.DataModel {
     // There should only be one incomplete goalfor any task, if not create it
     var goals = _.sortBy(this.goal_set(),'targeted');
     var next = this.getNotCompleted(goals);
+    this.started = next && next.started && next.started.unixtime();
     var now = nextimate = moment();
     var today = now.format("YYYY-MM-DD");
     var yesterday = now.clone().add(-1,"days").format("YYYY-MM-DD");;
@@ -133,14 +134,22 @@ class Task extends uR.db.DataModel {
     return this.cache_delta;
   }
   click(e,riot_tag) {
+    var goal = this.getNotCompleted();
+    var data = { task: this.id };
+    var now = moment().format("YYYY-MM-DD HH:mm:ss");
+    var field = "completed";
+    if (this.task_type == "timer") {
+      field = goal.started?'completed':'started';
+    }
+    goal[field] = data[field] = now;
     riot_tag.ajax({
-      url: "/api/schema/ih.GoalForm/"+this.getNotCompleted().id+"/",
+      url: "/api/schema/ih.GoalForm/"+goal.id+"/",
       method: "POST",
-      data: { task: this.id, completed: moment().format("YYYY-MM-DD HH:mm:ss") },
+      data: data,
       success: function(data) {
         var goal = new Goal({ values_list: data.values_list });
         ih.goals.push(goal);
-        uR.forEach(ih.tasks,function (task) { if (task.id == goal.task.id) { task.cache_delta = undefined } })
+        goal.task.cache_delta = "undefined";
       },
     });
   };
@@ -191,9 +200,9 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
         <div class="card">
           <div class="card-body">
             <button class="btn btn-primary float-right { uR.icon(task.icon) }"
-                    onclick={ clickTask }></button>
+                    onclick={ clickTask } data-target_time={ task.started }></button>
             <div>
-              <div>{ task }</div>
+              <div>{ task.name }</div>
               <div class="time-delta">{ task.getTimeDelta() }</div>
               <button class="btn btn-primary float-left { uR.icon('pencil') }" if={edit_mode}
                       onclick={ editLastGoal }></button>
