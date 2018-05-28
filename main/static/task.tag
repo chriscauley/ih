@@ -1,6 +1,7 @@
 uR.db.ModelManager = uR.db.MapModelManager;
 class TaskGroup extends uR.db.Model {
   constructor(opts={}) {
+    opts._is_api = true;
     super(opts);
   }
   __str() {
@@ -24,6 +25,7 @@ var MINUTES_BETWEEN = {
 
 class Task extends uR.db.DataModel {
   constructor(opts={}) {
+    opts._is_api = true;
     super(opts);
   }
   __str() {
@@ -156,6 +158,7 @@ class Task extends uR.db.DataModel {
 }
 class Goal extends uR.db.DataModel {
   constructor(opts={}) {
+    opts._is_api = true;
     super(opts);
   }
   __str() {
