@@ -31,11 +31,13 @@ class Task extends uR.db.DataModel {
   __str() {
     return this.name;
   }
-  createSchema() {
+  createDataFields() {
     this.data_fields = [
       { name: "task_type", choices: ["",'counter','timer'], type: "select", required: false },
+      { name: "metrics", choices: ["count","timer","checklist","distance"], type: "checkbox", required: false },
+      { name: "checklist", help_text: "Comma separated items to check off every time you do the task",
+        required: false },
     ];
-    super.createSchema();
   }
   getIcon() {
     if (this.task_type == "timer") { return "clock-o"; }
@@ -167,6 +169,15 @@ class Goal extends uR.db.DataModel {
   __str() {
     var time_string = this.completed?"DONE: "+this.completed.hdatetime():"t"+this.targeted.htimedelta();
     return `${this.task.name} ${time_string}`
+  }
+  createDataFields() {
+    super.createDataFields();
+    var task = this.schema.get("task").value;
+    task = task && uR.db.ih.Task.objects.get(task);
+    var checklist = task && task.checklist && task.checklist.split(",") || [];
+    uR.forEach(checklist,function (check_name) {
+      this.data_fields.push({name: uR.slugify(check_name), label: check_name, type: "boolean", required: false });
+    },this);
   }
 }
 
