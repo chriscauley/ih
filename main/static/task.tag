@@ -32,15 +32,19 @@ class Task extends uR.db.DataModel {
     return this.name;
   }
   createDataFields() {
+    var METRIC_CHOICES = ["count","timer","distance","weight"];
     this.data_fields = [
-      { name: "task_type", choices: ["",'counter','timer'], type: "select", required: false },
-      { name: "metrics", choices: ["count","timer","checklist","distance"], type: "checkbox", required: false },
+      { name: "metrics", choices: METRIC_CHOICES, type: "checkbox", required: false },
+      { name: "reset_field", required: false, help_text: 'eg "new pack" or "new bag"' },
       { name: "checklist", help_text: "Comma separated items to check off every time you do the task",
         required: false },
     ];
   }
+  isTimer() {
+    return this.metrics && this.metrics.indexOf("timer") != -1;
+  }
   getIcon() {
-    if (this.task_type == "timer") { return "clock-o"; }
+    if (this.isTimer()) { return "clock-o"; }
     return "check";
   }
   getIntervalDisplay() {
@@ -145,7 +149,7 @@ class Task extends uR.db.DataModel {
     var data = { task: this.id };
     var now = moment().format("YYYY-MM-DD HH:mm:ss");
     var field = "completed";
-    if (this.task_type == "timer") {
+    if (this.isTimer()) {
       field = goal.started?'completed':'started';
     }
     goal[field] = data[field] = now;
@@ -174,10 +178,18 @@ class Goal extends uR.db.DataModel {
     super.createDataFields();
     var task = this.schema.get("task").value;
     task = task && uR.db.ih.Task.objects.get(task);
-    var checklist = task && task.checklist && task.checklist.split(",") || [];
+    if (!task) { return }
+    var checklist = task.checklist && task.checklist.split(",") || [];
+    task.reset_field && this.data_fields.push({ name: task.reset_field, type: "boolean"});
     uR.forEach(checklist,function (check_name) {
       this.data_fields.push({name: uR.slugify(check_name), label: check_name, type: "boolean", required: false });
     },this);
+    var metrics = task.metrics;
+    if (metrics) {
+      metrics.indexOf('count') != -1 && this.data_fields.push({ name: "count", type: "integer" });
+      metrics.indexOf('distance') != -1 && this.data_fields.push({ name: "distance", type: "number" });
+      metrics.indexOf('weight') != -1 && this.data_fields.push({ name: "weight", type: "number" });
+    }
   }
 }
 
