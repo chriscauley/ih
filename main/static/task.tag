@@ -102,20 +102,7 @@ class Task extends uR.db.DataModel {
           nextimate.add(this.interval,"days")
         }
       }
-      var self = this;
-      uR.ajax({
-        url: "/api/schema/ih.GoalForm/",
-        method: "POST",
-        data: { task: this.id, targeted: nextimate.format("YYYY-MM-DD HH:mm") },
-        success: function(data) {
-          var goal = new Goal({ values_list: data.values_list });
-          ih.goals.push(goal);
-          goal.task.cache_delta = undefined;
-          uR.router._current_tag.update()
-          self._calculating = false;
-        },
-      });
-      this._calculating = true;
+      this.makeNewGoal(nextimate);
       return "Calculating... (please refresh)";
     }
     this.cache_delta = "";
@@ -134,6 +121,22 @@ class Task extends uR.db.DataModel {
     if (this.cache_delta.indexOf("m") != -1) { expiry_time = 60*1000 }
     this.expire = new Date().valueOf() + expiry_time;
     return this.cache_delta;
+  }
+  makeNewGoal(nextimate) {
+    var self = this;
+    uR.ajax({
+      url: "/api/schema/ih.GoalForm/",
+      method: "POST",
+      data: { task: this.id, targeted: nextimate.format("YYYY-MM-DD HH:mm") },
+      success: function(data) {
+        var goal = new Goal({ values_list: data.values_list });
+        ih.goals.push(goal);
+        goal.task.cache_delta = undefined;
+        uR.router._current_tag.update()
+        self._calculating = false;
+      },
+    });
+    this._calculating = true;
   }
   click(e,riot_tag) {
     var goal = this.getNotCompleted();
