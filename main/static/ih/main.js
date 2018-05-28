@@ -1,3 +1,4 @@
+uR.auth_enabled = true;
 window.ih = {
   ready: uR.Ready(),
   refreshData: function() {
