@@ -25,6 +25,8 @@ window.ih = {
             ih[model_name.toLowerCase()+"s"] = data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
               values_list: r,
             }));
+            // #! TODO: fix the following
+            new uR.db.ih[model_name](); // necessary to create related lookup ala uR.db.ForeignKey
           });
           ih.ready.start();
         }

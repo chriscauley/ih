@@ -83,6 +83,7 @@ class Task extends uR.db.DataModel {
     var times_yesterday = goals.filter((g) => _completed(g) == yesterday).length;
     var times_week_ago = goals.filter((g) => _completed(g) <= week_ago).length;
     var last = goals[goals.length-1]; // last goal is most recent
+    var data = {};
     if (!next) {
       // TODO: this._calculating is hacky. Figure out why this is being called twice
       if (this._calculating) { return "Calculating... (please refresh)"; }
@@ -107,8 +108,11 @@ class Task extends uR.db.DataModel {
         } else {
           nextimate.add(this.interval,"days")
         }
+        if (last.weight) { data.weight = last.weight }
+        if (last.count) { data.count = last.count }
+        if (last.distance) { data.distance = last.distance }
       }
-      this.makeNewGoal(nextimate);
+      this.makeNewGoal(nextimate.format("YYYY-MM-DD HH:mm"),data);
       return "Calculating... (please refresh)";
     }
     this.cache_delta = "";
@@ -128,12 +132,12 @@ class Task extends uR.db.DataModel {
     this.expire = new Date().valueOf() + expiry_time;
     return this.cache_delta;
   }
-  makeNewGoal(nextimate) {
+  makeNewGoal(targeted,data) {
     var self = this;
     uR.ajax({
       url: "/api/schema/ih.GoalForm/",
       method: "POST",
-      data: { task: this.id, targeted: nextimate.format("YYYY-MM-DD HH:mm") },
+      data: { task: this.id, targeted: targeted, data: data },
       success: function(data) {
         var goal = new Goal({ values_list: data.values_list });
         ih.goals.push(goal);
