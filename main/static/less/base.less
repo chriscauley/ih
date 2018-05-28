@@ -30,12 +30,11 @@ body {
   &,&:first-child { margin-bottom: 0.4rem; }
 }
 
-.card-body-sm, .card-body-sm:last-child {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.4rem 0.8rem 0;
+.card-body-sm,
+.card-body-sm:last-child {
+  padding: 0.4rem 0.4rem 0;
 }
+.card-body-sm:last-child { padding-bottom: 0.4rem; }
 
 .pointer { cursor: pointer; }
 
@@ -102,4 +101,11 @@ task-list,task-completion-list {
 .fa.btn { /* .fa buttons are not vertically center (eg fa-plus) */
   display: flex;
   align-items: center;
+}
+
+.flexy {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  .block { flex-basis: 100% }
 }

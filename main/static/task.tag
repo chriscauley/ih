@@ -66,13 +66,28 @@ class Task extends uR.db.DataModel {
     }
     uR.newElement("ur-pagination",options,riot_options);
   }
-  getTimeDelta() {
-    if (this.cache_delta && (this.expire > new Date())) { return this.cache_delta }
-    if (!this.goal_set) { return }
-
-    // There should only be one incomplete goalfor any task, if not create it
+  getDisplayItems(edit_mode) {
     var goals = _.sortBy(this.goal_set(),'targeted');
     var next = this.getNotCompleted(goals);
+    var last = _.sortBy(goals,"completed").filter((g) => g.completed).pop();
+    var time_delta = this.getTimeDelta(goals,next,last);
+    var items = [];
+    if (edit_mode) {
+      var _i = uR.icon('edit');
+      last && items.push({ icon: _i, click: (e) => last.edit(), target_time: last.completed.unixtime(),
+                           text: "Last: "});
+      next && items.push({ icon: _i, click: (e) => next.edit(), target_time: next.targeted.unixtime(),
+                           text: "Next: "});
+    } else {
+      next && items.push({ target_time: next.targeted.unixtime() });
+      !next && items.push({ text: "Last: ", target_time: last.completed.unixtime() });
+    }
+    items.push({ text: time_delta, className: "time-delta" });
+    return items;
+  }
+  getTimeDelta(goals,next,last) {
+    if (this._cache_delta) { return this._cache_delta }
+    // There should only be one incomplete goal for any task, if not create it
     this.started = next && next.started && next.started.unixtime();
     var now = nextimate = moment();
     var today = now.format("YYYY-MM-DD");
@@ -82,7 +97,6 @@ class Task extends uR.db.DataModel {
     var times_today = goals.filter((g) => _completed(g) == today).length;
     var times_yesterday = goals.filter((g) => _completed(g) == yesterday).length;
     var times_week_ago = goals.filter((g) => _completed(g) <= week_ago).length;
-    var last = goals[goals.length-1]; // last goal is most recent
     var data = {};
     if (!next) {
       // TODO: this._calculating is hacky. Figure out why this is being called twice
@@ -111,6 +125,8 @@ class Task extends uR.db.DataModel {
         if (last.weight) { data.weight = last.weight }
         if (last.count) { data.count = last.count }
         if (last.distance) { data.distance = last.distance }
+      } else {
+        nextimate = moment();
       }
       this.makeNewGoal(nextimate.format("YYYY-MM-DD HH:mm"),data);
       return "Calculating... (please refresh)";
@@ -231,16 +247,19 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </div>
       <div class="column col-6" each={ task, i in ih.tasks }>
         <div class="card">
-          <div class="card-body">
-            <button class="btn btn-primary float-right { uR.icon(task.icon) }"
+          <div class="card-body card-body-sm">
+            <button class="btn btn-sm btn-primary float-right { uR.icon(task.icon) }"
                     onclick={ clickTask } data-target_time={ task.started }></button>
             <div>
               <div>{ task.name }</div>
-              <div class="time-delta">{ task.getTimeDelta() }</div>
-              <button class="btn btn-primary float-left { uR.icon('pencil') }" if={edit_mode}
-                      onclick={ editLastGoal }></button>
-              <span if={ task.last_time } data-target_time={ task.last_time }>Last: </span>
-              <span if={ task.target_time } data-target_time={ task.target_time }></span>
+              <div class="flexy">
+                <div each={ item,i in task.getDisplayItems(edit_mode) } onclick={ item.click }
+                     class="{ 'pointer block': item.click }">
+                  <i if={ item.click } class={ item.icon }></i>
+                  { item.text }
+                  <span if={ item.target_time } data-target_time={ item.target_time }></span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -268,13 +287,10 @@ switchActive(e) {
 this.on("update",function() {
   var edit_mode = this.edit_mode;
   ih.tasks = _.chain(ih.tasks).each(function(task) {
-    task.getTimeDelta();
     task.icon = edit_mode?"edit":task.getIcon();
   }).sortBy("last_time").sortBy("target_time").value();
+  String.lunch.watchTimers();
 });
-editLastGoal(e) {
-  e.item.task.getNotCompleted().edit()
-}
 route() { }
 clickTask(e) {
   var id = e.item.task.id;

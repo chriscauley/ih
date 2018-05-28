@@ -48,5 +48,4 @@ uR.ready(function() {
   String.lunch.htime_hour = "H:mm";
   String.lunch.at = "@";
   ih.refreshData();
-  String.lunch.watchTimers();
 });
