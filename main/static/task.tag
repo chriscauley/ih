@@ -45,14 +45,14 @@ class Task extends uR.db.DataModel {
   }
   getNotCompleted(goals) {
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
-    return (goals || this.goal_set()).filter((g) => !g.completed)[0];
+    return this.id && (goals || this.goal_set()).filter((g) => !g.completed)[0];
   }
   adminPostRender() {
     var options = {
       parent: document.querySelector("ur-form .post-form"),
     }
     var riot_options = {
-      results: this.goal_set().map(function(goal) {
+      results: this.id && this.goal_set().map(function(goal) {
         return { url: goal.getAdminUrl(), fields: [goal.targeted.hdatetime(),goal.completed && goal.completed.hdatetime()] };
       }),
     }
