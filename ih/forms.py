@@ -20,6 +20,9 @@ class TaskGroupForm(UserJsonModelForm):
     fields = ['name','icon']
 
 class TaskForm(UserJsonModelForm):
+  def __init__(self,*args,**kwargs):
+    super(TaskForm,self).__init__(*args,**kwargs)
+    self.fields['group'].choices = [(g.id,str(g)) for g in TaskGroup.objects.filter(user=self.request.user)]
   # field_overrides = { 'per_time': 'per_time' }
   class Meta:
     model = Task
