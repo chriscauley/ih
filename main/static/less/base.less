@@ -24,17 +24,20 @@ body {
   .hide-edit { display: none; }
 }
 
-.column > .card {
+.card {
   position: relative;
   &:last-child { margin-bottom: 0; }
   &,&:first-child { margin-bottom: 0.4rem; }
+  .card-, &.card- {
+    &header, &body, &.footer {
+      padding: 0.4rem;
+      padding-bottom: 0;
+      &:last-child { padding-bottom: .4rem; }
+    }
+  }
 }
 
-.card-body-sm,
-.card-body-sm:last-child {
-  padding: 0.4rem 0.4rem 0;
-}
-.card-body-sm:last-child { padding-bottom: 0.4rem; }
+konsole ur-tabs.default .tab-anchors { top: auto; bottom: 100%; }
 
 .pointer { cursor: pointer; }
 
@@ -108,4 +111,5 @@ task-list,task-completion-list {
   justify-content: space-between;
   flex-wrap: wrap;
   .block { flex-basis: 100% }
+  .card:last-child { margin-bottom: 0.4rem; }
 }
