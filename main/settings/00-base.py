@@ -31,12 +31,16 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.template.context_processors.tz',
         'django.contrib.messages.context_processors.messages',
+        'lablackey.context.dummy',
+        'lablackey.context.public_settings',
         #'social.apps.django_app.context_processors.backends',
         #'social.apps.django_app.context_processors.login_redirect',
       ],
     },
   },
 ]
+
+PUBLIC_SETTINGS = ['DEBUG']
 
 AUTHENTICATION_BACKENDS = (
   #'social.backends.google.GoogleOAuth2',
@@ -86,7 +90,8 @@ STATICFILES_FINDERS = (
 
 LESS_EXECUTABLE = 'lessc'
 COMPRESS_PRECOMPILERS = [
-  ('text/less', "lessc {infile} {outfile} --line-numbers=comments;autoprefixer-cli {outfile} -o {outfile}"),
+  ('text/less', 'lessc {infile} |autoprefixer-cli > {outfile}'),
+  ('riot/tag', 'riot {infile} {outfile}'),
 ]
 
 FAVICON = '/static/favicon.ico'

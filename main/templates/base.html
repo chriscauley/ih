@@ -1,13 +1,16 @@
-{% load compress %}
+{% load compress static %}
 <html>
   <head>
     <title>Idle Hands</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    {% if settings.DEBUG %}
+    <link href="//beta.unrest.io/uc/uc-built.css" rel="stylesheet"></link>
+    {% endif %}
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
-    <link href="/static/less/base.less" rel="stylesheet/less" type="text/css" />
+    <link href="/static/less/base.less?{% now "Hi" %}" rel="stylesheet/less" type="text/css" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
-    <link type="image/x-icon" rel="shortcut icon" href="/static/favicon.ico" />
+    <link type="image/x-icon" rel="shortcut icon" href="{% static "favicon.ico" %}" />
   </head>
   {% csrf_token %}
   <div id="main">
@@ -24,17 +27,29 @@
   </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.0/underscore-min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.4/svg.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.10.1/riot+compiler.min.js"></script>
-  <script src="//beta.unrest.io/unrest-built.js"></script>
-  <script src="//beta.unrest.io/canvas-built.js"></script>
-  <script src="//beta.unrest.io/admin-built.js"></script>
-  <script src="//beta.unrest.io/controller-built.js"></script>
-  <script src="//beta.unrest.io/lunchtime/lunchtime.js"></script>
+  <script src="//beta.unrest.io/unrest-built.js?{% now "Hi" %}"></script>
+  <script src="//beta.unrest.io/canvas-built.js?{% now "Hi" %}"></script>
+  <script src="//beta.unrest.io/admin-built.js?{% now "Hi" %}"></script>
+  <script src="//beta.unrest.io/controller-built.js?{% now "Hi" %}"></script>
+  <script src="//beta.unrest.io/lunchtime/lunchtime.js?{% now "Hi" %}"></script>
+  {% if settings.DEBUG %}
+  <script src="https://cdn.jsdelivr.net/npm/object-hash@1.2.0/dist/object_hash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.7.5/beautify-html.min.js"></script>
+  <script src="//beta.unrest.io/uc/uc-built.js"></script>
+  <script src="{% static "tests.js" %}"></script>
+  <script>
+    var KLOGGER_SELECTOR="#main";
+    var DUMMY_USERS = {{ DUMMY_USERS|safe }};
+  </script>
+  {% endif %}
   {% compress js %}
-  <script src="/static/main.js"></script>
-  <script src="/static/icon.js"></script>
-  <script src="/static/router.js"></script>
+  <script src="{% static "main.js" %}"></script>
+  <script src="{% static "icon.js" %}"></script>
+  <script src="{% static "router.js" %}"></script>
   {% endcompress %}
-  <script type="riot/tag" src="/static/task.tag"></script>
+  <script type="riot/tag" src="{% static "task.tag" %}?{% now "Hi" %}"></script>
 </html>
