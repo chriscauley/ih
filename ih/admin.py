@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from models import Task, Goal
+from models import Task, Goal, TaskGroup
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -15,3 +15,7 @@ class GoalAdmin(admin.ModelAdmin):
   list_filter = ["task"]
   list_display = ["__unicode__","targeted","completed"]
   list_per_page = 100
+
+@admin.register(TaskGroup)
+class TaskGroupAdmin(admin.ModelAdmin):
+  list_display = ['name','user','icon']
