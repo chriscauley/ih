@@ -43,7 +43,8 @@ class Task extends uR.db.DataModel {
   isTimer() {
     return this.metrics && this.metrics.indexOf("timer") != -1;
   }
-  getIcon() {
+  getIcon(edit_mode) {
+    if (edit_mode) { return "edit"; }
     if (this.isTimer()) { return "clock-o"; }
     return "check";
   }
@@ -72,16 +73,18 @@ class Task extends uR.db.DataModel {
     var last = _.sortBy(goals,"completed").filter((g) => g.completed).pop();
     var time_delta = this.getTimeDelta(goals,next,last);
     var items = [];
-    if (edit_mode) {
+
+    if (edit_mode) { // show next and last with edit buttons
       var _i = uR.icon('edit');
       last && items.push({ icon: _i, click: (e) => last.edit(), target_time: last.completed.unixtime(),
                            text: "Last: "});
       next && items.push({ icon: _i, click: (e) => next.edit(), target_time: next.targeted.unixtime(),
                            text: "Next: "});
-    } else {
+    } else { // show next || last || nothing
       next && items.push({ target_time: next.targeted.unixtime() });
-      !next && items.push({ text: "Last: ", target_time: last.completed.unixtime() });
+      !next && last && items.push({ text: "Last: ", target_time: last.completed.unixtime() });
     }
+    // in either mode, show the weeks/months, etc
     items.push({ text: time_delta, className: "time-delta" });
     return items;
   }
@@ -200,9 +203,9 @@ class Goal extends uR.db.DataModel {
     task = task && uR.db.ih.Task.objects.get(task);
     if (!task) { return }
     var checklist = task.checklist && task.checklist.split(",") || [];
-    task.reset_field && this.data_fields.push({ name: task.reset_field, type: "boolean"});
+    task.reset_field && this.data_fields.push({ label: task.reset_field, type: "boolean", required: false });
     uR.forEach(checklist,function (check_name) {
-      this.data_fields.push({name: uR.slugify(check_name), label: check_name, type: "boolean", required: false });
+      this.data_fields.push({ label: check_name, type: "boolean", required: false });
     },this);
     var metrics = task.metrics;
     if (metrics) {
@@ -253,10 +256,10 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
           </div>
         </div>
       </div>
-      <div class="column col-6" each={ task, i in ih.tasks }>
+      <div class="column col-6" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body card-body-sm">
-            <button class="btn btn-sm btn-primary float-right { uR.icon(task.icon) }"
+            <button class="btn btn-sm btn-primary float-right { uR.icon(task.getIcon(edit_mode)) }"
                     onclick={ clickTask } data-target_time={ task.started }></button>
             <div>
               <div>{ task.name }</div>
