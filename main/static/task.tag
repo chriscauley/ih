@@ -274,10 +274,6 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </div>
     </div>
   </div>
-
-  <div class="scroll-list-trigger" onclick={ switchActive }></div>
-  <task-completion-list class="scroll-list bottom inactive container"></task-completion-list>
-
   <script>
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
   this.page = {results: []};
@@ -314,51 +310,3 @@ clickTask(e) {
 }
   </script>
 </task-list>
-
-<task-completion-list>
-  <div class="columns">
-    <div class="column col-12">
-      <div class="card bg-secondary" each={ goal,i in ih.goals } ur-id={ goal.id }>
-        <div onclick={ undelete } class="card-body undo-delete bg-error" if={ goal.deleted }>
-          Undo <i class="fa fa-undo float-right"></i>
-        </div>
-        <div class="card-body">
-          <button class="{ uR.css.btn.cancel } float-right { uR.icon(edit_mode?'edit':'trash') }"
-                  onclick={ delete }></button>
-          <div>
-            <div>{ goal.task.name }</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-this.on("update",function() {
-  this.edit_mode = this.parent.edit_mode;
-  if (this.root.classList.contains("inactive")) {
-    var e = this.root;
-    setTimeout(() => e.scroll(0,e.scrollHeight), 100);
-  }
-});
-delete(e) {
-  var goal = e.item.goal;
-  if (this.edit_mode) { return goal.edit() }
-  this.ajax({
-    method:  "DELETE",
-    url: "/api/schema/ih.GoalForm/"+goal.id+"/",
-    success: () => { goal.deleted = true; },
-    target: this.root.querySelector(`[ur-id="${goal.id}"]`),
-  });
-}
-undelete(e) {
-  var goal = e.item.goal;
-  this.ajax({
-    method:  "DELETE",
-    url: "/api/schema/ih.GoalForm/"+goal.id+"/?undo",
-    success: () => { goal.deleted = false; },
-    target: this.root.querySelector(`[ur-id="${goal.id}"]`),
-  });
-}
-  </script>
-</task-completion-list>
