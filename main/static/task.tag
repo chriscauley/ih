@@ -216,7 +216,15 @@ class Goal extends uR.db.DataModel {
 uR.db.register("ih",[Task,Goal,TaskGroup]);
 
 <task-list>
-  <div class="scroll-list active top container" ur-mode={ edit_mode?"edit":"add" }>
+  <div class="container" ur-mode={ edit_mode?"edit":"add" }>
+    <div class="flexy">
+      <a href="/" class="card card-body card-body-sm pointer">
+        <i class="fa-2x { uR.icon('home') }"></i>
+      </a>
+      <a href="/group/{group.id}/" class="card card-body card-body-sm pointer" each={ group, i in ih.taskgroups }>
+        <i class="fa-2x { uR.icon(group.icon) }"></i>
+      </a>
+    </div>
     <div class="columns">
       <div class="column col-4 hide-inactive">
         <div class="card">
@@ -275,23 +283,30 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
   this.page = {results: []};
 })
 this.on("mount",function() {
-var self = this;
-setTimeout(function() { self.update() },1000)
+  var self = this;
+  setTimeout(function() { self.update() },1000)
+  this.route("",this.opts)
+  this.update();
 });
 toggleEdit(e) {
   this.edit_mode = !this.edit_mode;
 }
-switchActive(e) {
-  uR.forEach(this.root.querySelectorAll(".scroll-list"),(e) => e.classList.toggle("inactive"));
-}
 this.on("update",function() {
   var edit_mode = this.edit_mode;
-  ih.tasks = _.chain(ih.tasks).each(function(task) {
-    task.icon = edit_mode?"edit":task.getIcon();
-  }).sortBy("last_time").sortBy("target_time").value();
   String.lunch.watchTimers();
 });
-route() { }
+route(pathname,opts) {
+  this.group = undefined;
+  if (opts.matches[1] == "misc") {
+    // eventually this will show ungrouped tasks
+  } else if (opts.matches[1]) {
+    this.group = uR.db.ih.TaskGroup.objects.get(opts.matches[1]);
+    this.tasks = this.group.task_set()
+  } else {
+    this.tasks = Task.objects.filter({group: undefined}) // this will be for misc for now
+    // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
+  }
+}
 clickTask(e) {
   var id = e.item.task.id;
   if (this.edit_mode) { return e.item.task.edit(); }
