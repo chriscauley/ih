@@ -284,8 +284,6 @@ this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
 this.on("mount",function() {
   var self = this;
   setTimeout(function() { self.update() },1000)
-  this.route("",this.opts)
-  this.update();
 });
 toggleEdit(e) {
   this.edit_mode = !this.edit_mode;
@@ -294,18 +292,20 @@ this.on("update",function() {
   var edit_mode = this.edit_mode;
   String.lunch.watchTimers();
 });
-route(pathname,opts) {
+this.on("route",function (new_opts={}) {
+  _.extend(this.opts,new_opts)
   this.group = undefined;
-  if (opts.matches[1] == "misc") {
+  var group_id = this.opts.matches && this.opts.matches[1];
+  if (group_id == "misc") {
     // eventually this will show ungrouped tasks
-  } else if (opts.matches[1]) {
-    this.group = uR.db.ih.TaskGroup.objects.get(opts.matches[1]);
+  } else if (group_id) {
+    this.group = uR.db.ih.TaskGroup.objects.get(group_id);
     this.tasks = this.group.task_set()
   } else {
     this.tasks = Task.objects.filter({group: undefined}) // this will be for misc for now
     // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
   }
-}
+})
 clickTask(e) {
   var id = e.item.task.id;
   if (this.edit_mode) { return e.item.task.edit(); }
