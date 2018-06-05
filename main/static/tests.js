@@ -11,7 +11,8 @@
     }
     if (reset) {
       return function loginWithReset(pass,fail) {
-        [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach((m) => m.objects.clear());
+        [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach(m => m.objects.clear());
+        // [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach(m => console.log(m.objects.all()));
         uR.ajax({
           url: '/api/test/reset/',
           data: { reset_email: username },
@@ -23,27 +24,12 @@
     return login;
   }
 
-  function createBasicGroups(pass,fail) {
-    var values = [
-      ['chores','selkirk-rex-cat'],
-      ['hygene','shower'],
-      ['vices','skull'],
-    ];
-    var promises = [];
-    uR.forEach(values,function(value) {
-      promises.push(new Promise(function(resolve) {
-        uR.ajax({
-          url: '/api/schema/ih.TaskGroupForm/',
-          data: { name: value[0], icon: value[1] },
-          success: function(data) {
-            ih.goals.push(new uR.db.ih.TaskGroup({values_list: data.values_list}));
-            resolve();
-          },
-          method: "POST",
-        });
-      }))
-    });
-    Promise.all(promises).then(pass)
+  function createObjects(model_key,...names) {
+    var _source_data = uC.SOURCE_DATA[model_key];
+    names = names || _source_data.keys();
+    items = [];
+    for (var name of names) { items.push(_source_data.get(name)) }
+    return uC._makeObjects('ih.Group',...names)
   }
   
   function TestLogin() {
@@ -54,10 +40,12 @@
 
   function Test3TimesADay() {
     this.do().then(login(0,true))
-      .then(createBasicGroups)
-      .setPathname("/")
+      .then(createObjects("ih.TaskGroup"))
+      .shiftTime("2018-01-01")
+      .route("/")
     // #! TODO check groups appear at /
-      .setPathname("#!/admin/ih/Task/new/")
+      .route("#!/admin/ih/Task/new/")
+    // #! set time to noon
       .changeForm("ur-form form", {
         name: "Smoke",
         per_time: 3,
@@ -70,7 +58,19 @@
       })
       .click("#submit_button")
       .wait(".messagelist .success")
+      .route("/")
       .checkResults(() => uR.db.ih.Task.objects.all().map(t => t.toJson()))
+    // #! verify task appears in list
+    // #! verify task is targeted for 3 hours from now
+    // #! start timer
+    // #! verify +0s appears
+    // #! set to 15 minutes in the future
+    // #! complete task
+    // #! verify that task is started/complete, task-card updates
+    // #! open "next" task in modal and verify target time and that started/completed are null
+    // #! start+complete task
+    // #! verify task is 3 hours in the future
+    // #! start+completed again, this time completion should be tomorrow
       .done()
   }
   konsole.addCommands(TestLogin,Test3TimesADay);
