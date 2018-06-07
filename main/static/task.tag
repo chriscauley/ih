@@ -1,4 +1,3 @@
-uR.db.ModelManager = uR.db.MapModelManager;
 class TaskGroup extends uR.db.Model {
   constructor(opts={}) {
     opts._is_api = true;
@@ -277,6 +276,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </div>
     </div>
   </div>
+  <mode-widget></mode-widget>
   <script>
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
   this.page = {results: []};
