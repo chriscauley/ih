@@ -18,7 +18,7 @@ INTERVAL_CHOICES = [ 1, 2, 3, 4, 5, 6, 7,
 INTERVAL_CHOICES = [(str(a),str(a)) for a in INTERVAL_CHOICES]
 
 class JsonModel(UserModel):
-  created = models.DateTimeField(auto_now_add=True)
+  created = models.DateTimeField(default=timezone.now)
   updated = models.DateTimeField(auto_now=True)
   deleted = models.DateTimeField(null=True,blank=True)
   class Meta:
@@ -53,3 +53,13 @@ class Goal(JsonModel):
 class NoSQLModel(JsonModel):
   data = JSONField(default=dict,null=True,blank=True)
   ur_model = models.CharField(max_length=255)
+
+class Mode(JsonModel):
+  name = models.CharField(max_length=32)
+  __unicode__ = lambda self: "%s %s"%(self.name,self.user)
+
+class ModeChange(JsonModel):
+  mode = models.ForeignKey("Mode")
+  __unicode__ = lambda self: "%s@%s"%(self.mode,self.created)
+  class Meta:
+    ordering = ('-created',)
