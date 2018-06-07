@@ -1,40 +1,40 @@
 uR.auth_enabled = true;
+uR.db.ModelManager = uR.db.MapModelManager;
 window.ih = {
   ready: uR.Ready(),
   refreshData: function() {
-    if (!uR.auth.user) {
-      return uR.router.start();
-    }
+    if (!uR.auth.user) { return uR.router.start(); }
     var done = 0;
     var results = {};
     var models = [];
     ih.tasks = [];
     ih.goals = [];
     ih.taskgroups = [];
-    function loadModel(name) {
-      models.push(name);
-      uR.ajax({
-        url: "/api/schema/ih."+name+"Form/?ur_page=0&",
-        success: function(data) {
-          done++;
-          results[name] = data;
-          if (done != 3) { return; }
-          uR.forEach(models,function(model_name) {
-            var data = results[model_name];
-            uR.db.schema["ih."+model_name] = data.schema;
-            ih[model_name.toLowerCase()+"s"] = data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
-              values_list: r,
-            }));
-            // #! TODO: fix the following
-            new uR.db.ih[model_name](); // necessary to create related lookup ala uR.db.ForeignKey
-          });
-          ih.ready.start();
-        }
-      });
+    ih.modes = [];
+    function loadModels(model_names) {
+      function success(data) {
+        done++;
+        results[data.ur_model.split(".")[1]] = data;
+        if (done != model_names.length) { return; }
+        uR.forEach(model_names,function(model_name) {
+          var data = results[model_name.toLowerCase()];
+          uR.db.schema["ih."+model_name] = data.schema;
+          ih[model_name.toLowerCase()+"s"] = data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
+            values_list: r,
+          }));
+          // #! TODO: fix the following
+          new uR.db.ih[model_name](); // necessary to create related lookup ala uR.db.ForeignKey
+        });
+        ih.ready.start();
+      }
+      for (var model_name of model_names) {
+        uR.ajax({
+          url: "/api/schema/ih."+model_name+"Form/?ur_page=0&",
+          success: success,
+        });
+      }
     }
-    loadModel('TaskGroup');
-    loadModel('Task');
-    loadModel('Goal');
+    loadModels(['TaskGroup','Task','Goal','Mode']);
   }
 };
 uR.config.form_prefix = "#";
