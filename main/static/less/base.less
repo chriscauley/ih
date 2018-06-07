@@ -55,55 +55,10 @@ konsole ur-tabs.default .tab-anchors { top: auto; bottom: 100%; }
   width: 100%;
 }
 
-.scroll-list {
-  max-height: 100%;
-  overflow: scroll;
-}
-
-@one-height: 70px;
-@trigger-height: 26px;
-task-list,task-completion-list {
+task-list {
   display: block;
   position: relative;
   .column { background: white; }
-}
-.scroll-list {
-  &.bottom { padding-top: @one-height+@trigger-height; }
-  &.top { padding-bottom: @one-height+@trigger-height; }
-  &.inactive {
-    max-height: @one-height;
-    overflow: hidden;
-    position: absolute;
-    width: 100%;
-    z-index: 2;
-    &.bottom { padding-top: 0; bottom: 0; }
-    &.top { padding-bottom: 0; top: 0; }
-    .hide-inactive { display: none; }
-  }
-}
-
-.scroll-list-trigger {
-  background: white;
-  border: 1px solid;
-  bottom: @one-height;
-  cursor: pointer;
-  height: @trigger-height;
-  position: absolute;
-  text-align: center;
-  margin: 0 ~"calc(var(--gutter))";
-  width: ~"calc(100% - 2 * var(--gutter))";
-  z-index: 3;
-  &:before { content: "^^^"; }
-  .scroll-list.inactive + & {
-    bottom: auto;
-    top: @one-height;
-    &:before { content: "vvv"; }
-  }
-}
-
-.fa.btn { /* .fa buttons are not vertically center (eg fa-plus) */
-  display: flex;
-  align-items: center;
 }
 
 .flexy {
