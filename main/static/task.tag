@@ -61,7 +61,13 @@ class Task extends uR.db.DataModel {
     }
     var riot_options = {
       results: this.id && this.goal_set().map(function(goal) {
-        return { url: goal.getAdminUrl(), fields: [goal.targeted.hdatetime(),goal.completed && goal.completed.hdatetime()] };
+        return {
+          url: goal.getAdminUrl(),
+          delete: () => alert("not implemented!"),
+          fields: [
+            goal.completed && ("Last: "+goal.completed.hdatetime()) || goal.targeted.hdatetime(),
+          ]
+        };
       }),
     }
     uR.newElement("ur-pagination",options,riot_options);
