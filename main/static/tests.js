@@ -26,10 +26,10 @@
 
   function createObjects(model_key,...names) {
     var _source_data = uC.SOURCE_DATA[model_key];
-    names = names || _source_data.keys();
+    names = names.length?names:Array.from(_source_data.keys());
     items = [];
     for (var name of names) { items.push(_source_data.get(name)) }
-    return uC._makeObjects('ih.Group',...names)
+    return uC._makeObjects(model_key,...items)
   }
   
   function TestLogin() {

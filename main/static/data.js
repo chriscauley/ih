@@ -3,8 +3,8 @@
     return () => uR.db.ih.TaskGroup.objects.get({name:name}).id
   }
 
-  function FastMap(name,...items) {
-    return new Map(items.map((i) => [i[name],i]));
+  function FastMap(field_name,items) {
+    return new Map(items.map((i) => [i[field_name],i]));
   }
 
   uC.SOURCE_DATA = {};
@@ -49,14 +49,14 @@
       uR.forEach(items,function(item) {
         var data = {};
         for (var key in item) {
-          data[key] = item2data[key](item[key]);
+          data[key] = item2data[typeof key](item[key]);
         }
         promises.push(new Promise(function(resolve) {
           uR.ajax({
-            url: `/api/schema/${model_key}/`,
+            url: `/api/schema/${model_key}Form/`,
             data: data,
-            success: function(data) {
-              new uR.db[model_key]({ values_list: data.values_list});
+            success: function(response_data) {
+              new uR.db[model_key]({ values_list: response_data.values_list});
               resolve();
             },
             method: "POST",
