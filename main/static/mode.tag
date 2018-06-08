@@ -8,7 +8,17 @@ class Mode extends uR.db.Model {
   }
 }
 
-uR.db.register("ih",[Mode])
+class ModeChange extends uR.db.Model {
+  constructor(opts={}) {
+    opts._is_api = true;
+    super(opts);
+  }
+  __str() {
+    return this.mode.name;
+  }
+}
+
+uR.db.register("ih",[Mode,ModeChange])
 
 <mode-widget onclick={ openViewer } class="pointer">
   <div>DOOT!</div>
