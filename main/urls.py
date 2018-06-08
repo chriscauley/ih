@@ -8,4 +8,5 @@ urlpatterns = [
   url(r'^auth/',include(auth_urls)),
   url(r'',include(lablackey.urls)),
   url(r'^group/(\d+)/',lablackey.views.render_template,kwargs={'template': "base.html"}),
+  url(r'^modechange/',lablackey.views.render_template,kwargs={'template': "base.html"}),
 ]
