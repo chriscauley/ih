@@ -7,10 +7,6 @@ window.ih = {
     var done = 0;
     var results = {};
     var models = [];
-    ih.tasks = [];
-    ih.goals = [];
-    ih.taskgroups = [];
-    ih.modes = [];
     function loadModels(model_names) {
       function success(data) {
         done++;
@@ -19,7 +15,7 @@ window.ih = {
         uR.forEach(model_names,function(model_name) {
           var data = results[model_name.toLowerCase()];
           uR.db.schema["ih."+model_name] = data.schema;
-          ih[model_name.toLowerCase()+"s"] = data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
+          data.ur_pagination.results.map((r) => new uR.db.ih[model_name]({
             values_list: r,
           }));
           // #! TODO: fix the following

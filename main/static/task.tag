@@ -158,7 +158,6 @@ class Task extends uR.db.DataModel {
       data: { task: this.id, targeted: targeted, data: data },
       success: function(data) {
         var goal = new Goal({ values_list: data.values_list });
-        ih.goals.push(goal);
         goal.task.cache_delta = undefined;
         uR.router._current_tag.update()
         self._calculating = false;
@@ -181,7 +180,6 @@ class Task extends uR.db.DataModel {
       data: data,
       success: function(data) {
         var goal = new Goal({ values_list: data.values_list });
-        ih.goals.push(goal);
         goal.task.cache_delta = "undefined";
       },
     });
@@ -223,7 +221,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       <a href="/" class="card card-body card-body-sm pointer">
         <i class="fa-2x { uR.icon('home') }"></i>
       </a>
-      <a href="/group/{group.id}/" class="card card-body card-body-sm pointer" each={ group, i in ih.taskgroups }>
+      <a href="/group/{group.id}/" class="card card-body card-body-sm pointer" each={ group, i in taskgroups }>
         <i class="fa-2x { uR.icon(group.icon) }"></i>
       </a>
     </div>
@@ -293,7 +291,8 @@ this.on("update",function() {
   String.lunch.watchTimers();
 });
 this.on("route",function (new_opts={}) {
-  _.extend(this.opts,new_opts)
+  _.extend(this.opts,new_opts);
+  this.taskgroups = uR.db.ih.TaskGroup.objects.all();
   this.group = undefined;
   var group_id = this.opts.matches && this.opts.matches[1];
   if (group_id == "misc") {
