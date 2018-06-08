@@ -41,21 +41,12 @@
   function Test3TimesADay() {
     this.do().then(login(0,true))
       .then(createObjects("ih.TaskGroup"))
+      .then(createObjects("ih.Task"))
       .shiftTime("2018-01-01")
       .route("/")
     // #! TODO check groups appear at /
       .route("#!/admin/ih/Task/new/")
     // #! set time to noon
-      .changeForm("ur-form form", {
-        name: "Smoke",
-        per_time: 3,
-        interval: 1,
-        group: () => uR.db.ih.TaskGroup.objects.get({name:'vices'}).id,
-        alignment: 'evil',
-        icon: 'smoking',
-        metrics: ['timer'],
-        checklist: 'bum one,new pack',
-      })
       .click("#submit_button")
       .wait(".messagelist .success")
       .route("/")

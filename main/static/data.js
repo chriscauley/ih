@@ -32,10 +32,10 @@
        'timer',"shave, wash hair, condition hair, private hair"],
     ].map(function(values) {
       var d = {};
-      uR.forEach(values,function(value,i) { d[group_field_list[i]] = value; })
+      uR.forEach(values,function(value,i) { d[task_field_list[i]] = value; })
       return d;
     })
-  )
+    )
 
   uC._makeObjects = function _makeObjects(model_key,...items) {
     var item2data = {
@@ -43,13 +43,14 @@
       "array": v => v.join(","),
       "string": v => v,
       "number": v => v,
+      "object": v => v
     }
     function test(pass,fail) {
       var promises = [];
       uR.forEach(items,function(item) {
         var data = {};
         for (var key in item) {
-          data[key] = item2data[typeof key](item[key]);
+          data[key] = item2data[typeof item[key]](item[key]);
         }
         promises.push(new Promise(function(resolve) {
           uR.ajax({
