@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
-from models import Task, Goal, TaskGroup
+from models import Task, Goal, TaskGroup, Mode, ModeChange
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -19,3 +19,13 @@ class GoalAdmin(admin.ModelAdmin):
 @admin.register(TaskGroup)
 class TaskGroupAdmin(admin.ModelAdmin):
   list_display = ['name','user','icon']
+
+@admin.register(Mode)
+class ModeAdmin(admin.ModelAdmin):
+  list_display = ['id','name']
+  list_editable = ['name']
+
+@admin.register(ModeChange)
+class ModeChangeAdmin(admin.ModelAdmin):
+  list_display = ['mode','created']
+  list_editable = ['created']

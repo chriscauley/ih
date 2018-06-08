@@ -57,9 +57,11 @@ class NoSQLModel(JsonModel):
 class Mode(JsonModel):
   name = models.CharField(max_length=32)
   __unicode__ = lambda self: "%s %s"%(self.name,self.user)
+  class Meta:
+    ordering = ('name',)
 
 class ModeChange(JsonModel):
   mode = models.ForeignKey("Mode")
   __unicode__ = lambda self: "%s@%s"%(self.mode,self.created)
   class Meta:
-    ordering = ('-created',)
+    ordering = ('created',)
