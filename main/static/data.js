@@ -1,6 +1,6 @@
 (function() {
   function _getGroup(name) {
-    return () => uR.db.ih.TaskGroup.objects.get({name:name}).id
+    if (uC.USE_GROUPS) { return () => uR.db.ih.TaskGroup.objects.get({name:name}).id }
   }
 
   function FastMap(field_name,items) {
@@ -43,7 +43,8 @@
       "array": v => v.join(","),
       "string": v => v,
       "number": v => v,
-      "object": v => v
+      "object": v => v,
+      "undefined": v => v,
     }
     function test(pass,fail) {
       var promises = [];

@@ -39,18 +39,16 @@
   }
 
   function Test3TimesADay() {
+    uC.USE_GROUPS = false;
     this.do().then(login(0,true))
-      .then(createObjects("ih.TaskGroup"))
-      .then(createObjects("ih.Task"))
       .shiftTime("2018-01-01")
+      .then(createObjects("ih.Task",'smoke'))
       .route("/")
     // #! TODO check groups appear at /
-      .route("#!/admin/ih/Task/new/")
-    // #! set time to noon
-      .click("#submit_button")
-      .wait(".messagelist .success")
-      .route("/")
-      .checkResults(() => uR.db.ih.Task.objects.all().map(t => t.toJson()))
+      .checkResults(".task_smoke")
+      .shiftTime(3601,"seconds")
+      .wait(1000)
+      .checkResults(".task_smoke")
     // #! verify task appears in list
     // #! verify task is targeted for 3 hours from now
     // #! start timer
