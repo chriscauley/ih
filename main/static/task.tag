@@ -259,7 +259,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
           </div>
         </div>
       </div>
-      <div class="column col-6" each={ task, i in tasks }>
+      <div class="column col-6 task_{ uR.slugify(task.name) }" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body card-body-sm">
             <button class="btn btn-sm btn-primary float-right { uR.icon(task.getIcon(edit_mode)) }"
