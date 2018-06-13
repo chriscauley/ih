@@ -12,7 +12,7 @@ class TaskAdmin(admin.ModelAdmin):
 
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
-  list_filter = ["task"]
+  list_filter = ["task",'user']
   list_display = ["__unicode__","targeted","completed"]
   list_per_page = 100
 
