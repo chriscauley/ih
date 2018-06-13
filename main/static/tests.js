@@ -1,4 +1,5 @@
 (function() {
+  var SHIFT_TO = moment().startOf("week").format();
   function login(index,reset=true) {
     var [username,password] = DUMMY_USERS[index];
     function login(pass,fail) {
@@ -11,7 +12,7 @@
     }
     if (reset) {
       return function loginWithReset(pass,fail) {
-        [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach(m => m.objects.clear());
+        'Task,TaskGroup,Goal,Mode'.split(',').forEach(m => uR.db.ih[m].objects.clear());
         // [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach(m => console.log(m.objects.all()));
         uR.ajax({
           url: '/api/test/reset/',
@@ -38,19 +39,52 @@
       .done()
   }
 
+  function TestModes() {
+    this.do().then(login(0,true))
+      .shiftTime(SHIFT_TO)
+      .then(createObjects("ih.Mode"))
+      .route("/mode/")
+      .checkResults("mode-viewer")
+  }
+
+  function TestTimer() {
+    uC.USE_GROUPS = false;
+    this.do().then(login(0,true))
+      .shiftTime(SHIFT_TO)
+      .then(createObjects("ih.Task",'smoke'))
+
+      .comment("Timer should not be clicked.")
+      .route("/").wait(1000)
+      .checkResults(".task_smoke")
+
+      // .comment("Timer @+0s.")
+      // .click(".task_smoke .fa-clock-o").wait(1000)
+      // .checkResults(".task_smoke")
+
+      // .comment("Timer @+60s.")
+      // .shiftTime(60,"seconds").wait(1000)
+      // .checkResults(".task_smoke")
+
+      // .comment("Timer Closed.")
+      // .click(".task_smoke .fa-clock-o").wait(1000)
+      // .checkResults(".task_smoke")
+  }
+
   function Test3TimesADay() {
     uC.USE_GROUPS = false;
     this.do().then(login(0,true))
-      .shiftTime("2018-01-01")
+      .shiftTime(SHIFT_TO)
       .then(createObjects("ih.Task",'smoke'))
       .route("/")
-    // #! TODO check groups appear at /
+      .wait(1000)
+      .comment("First click")
       .checkResults(".task_smoke")
       .shiftTime(3601,"seconds")
       .wait(1000)
       .checkResults(".task_smoke")
-    // #! verify task appears in list
-    // #! verify task is targeted for 3 hours from now
+      .click(".task_smoke .fa-clock-o")
+      .wait(1000)
+      .checkResults(".task_smoke")
     // #! start timer
     // #! verify +0s appears
     // #! set to 15 minutes in the future
@@ -60,7 +94,6 @@
     // #! start+complete task
     // #! verify task is 3 hours in the future
     // #! start+completed again, this time completion should be tomorrow
-      .done()
   }
-  konsole.addCommands(TestLogin,Test3TimesADay);
+  konsole.addCommands(TestLogin,TestTimer,Test3TimesADay,TestModes);
 })()
