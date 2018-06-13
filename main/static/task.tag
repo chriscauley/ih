@@ -224,10 +224,10 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
 <task-list>
   <div class="container" ur-mode={ edit_mode?"edit":"add" }>
     <div class="flexy">
-      <a href="/" class="card card-body card-body-sm pointer">
+      <a href="/" class="card card-body card-body-sm" data-badge={ active_timers.length || "" }>
         <i class="fa-2x { uR.icon('home') }"></i>
       </a>
-      <a href="/group/{group.id}/" class="card card-body card-body-sm pointer" each={ group, i in taskgroups }>
+      <a each={ group, i in taskgroups } href="/group/{group.id}/" class="card card-body card-body-sm">
         <i class="fa-2x { uR.icon(group.icon) }"></i>
       </a>
     </div>
@@ -262,8 +262,6 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       <div class="column col-6 task_{ uR.slugify(task.name) }" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body card-body-sm">
-            <button class="btn btn-sm btn-primary float-right { uR.icon(task.getIcon(edit_mode)) }"
-                    onclick={ clickTask } data-target_time={ task.started }></button>
             <div>
               <div>{ task.name }</div>
               <div class="flexy">
@@ -274,16 +272,22 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
                   <span if={ item.target_time } data-target_time={ item.target_time }></span>
                 </div>
               </div>
+              <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(edit_mode)) }"
+                      onclick={ clickTask } data-target_time={ task.started }></button>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <mode-widget></mode-widget>
+  <div class="container bottom-bar">
+    <mode-widget></mode-widget>
+  </div>
   <script>
+this.mixin(uR.LunchTimeMixin)
 this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
   this.page = {results: []};
+  this.active_timers = [];
 })
 this.on("mount",function() {
   var self = this;
@@ -295,6 +299,7 @@ toggleEdit(e) {
 this.on("update",function() {
   var edit_mode = this.edit_mode;
   String.lunch.watchTimers();
+  this.active_timers = uR.db.ih.Goal.objects.all().filter(g => g.started && !g.completed);
 });
 this.on("route",function (new_opts={}) {
   _.extend(this.opts,new_opts);
@@ -307,7 +312,8 @@ this.on("route",function (new_opts={}) {
     this.group = uR.db.ih.TaskGroup.objects.get(group_id);
     this.tasks = this.group.task_set()
   } else {
-    this.tasks = Task.objects.filter({group: undefined}) // this will be for misc for now
+    this.tasks = uR.db.ih.Goal.objects.all().filter(g => g.started && ! g.completed).map(g => g.task);
+    //this.tasks = this.tasks.concat(Task.objects.filter({group: undefined})) // this will be for misc for now
     // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
   }
 })
