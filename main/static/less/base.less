@@ -1,6 +1,8 @@
 body {
   --gutter: 0.4rem;
 }
+@gutter: var(--gutter);
+@blue: #5755d9;
 
 #main {
   background: #ddd;
@@ -11,12 +13,13 @@ body {
 #content {
   background: white;
   height: 100%;
-  margin: 0 auto;
   overflow: scroll;
+}
+#content, .bottom-bar {
+  margin: 0 auto;
   max-width: 100%;
   width: 400px;
 }
-
 [ur-mode=add] {
   .hide-add { display: none; }
 }
@@ -27,10 +30,10 @@ body {
 .card {
   position: relative;
   &:last-child { margin-bottom: 0; }
-  &,&:first-child { margin-bottom: 0.4rem; }
+  &,&:first-child { margin-bottom: @gutter; }
   .card-, &.card- {
     &header, &body, &.footer {
-      padding: 0.4rem;
+      padding: @gutter;
       padding-bottom: 0;
       &:last-child { padding-bottom: .4rem; }
     }
@@ -66,17 +69,56 @@ task-list {
   justify-content: space-between;
   flex-wrap: wrap;
   .block { flex-basis: 100% }
-  .card:last-child { margin-bottom: 0.4rem; }
+  .card:last-child { margin-bottom: @gutter; }
 }
 
-mode-widget {
-  display: block;
+.bottom-bar {
+  background: #f8f8f8f;
+  display: flex;
   bottom: 0;
-  left: 50%;
-  padding: 5px;
+  justify-content: space-between;
+  overflow: visible;
+  left: 0;
+  padding: @gutter;
+  right: 0;
   position: fixed;
   text-align: right;
-  width: 200px;
+}
+
+.top-right {
+  position: absolute;
+  top: @gutter;
+  right: @gutter;
+}
+
+mode-viewer {
+  display: block;
 }
 
 ur-pagination .columns { margin-bottom: 0.8rem; }
+
+konsole {
+  width: 32px;
+  ur-tabs { display: none; }
+  body.konsole-open & {
+    width: 500px;
+    ur-tabs { display: block; }
+  }
+}
+
+[data-badge] {
+  position: relative;
+  &:before {
+    background: @blue;
+    border-radius: 50%;
+    color: white;
+    content: attr(data-badge);
+    font-size: 0.8em;
+    line-height: 1.2em;
+    position: absolute;
+    right: 2px;
+    text-align: center;
+    top: 2px;
+    width: 1.2em;
+  }
+}
