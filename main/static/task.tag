@@ -232,22 +232,6 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </a>
     </div>
     <div class="columns">
-      <div class="column col-4 hide-inactive">
-        <div class="card">
-          <a class="card-body card-body-sm" href={ uR.db.ih.Task.admin_new_url }>
-            <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
-            Task
-          </a>
-        </div>
-      </div>
-      <div class="column col-4 hide-inactive">
-        <div class="card">
-          <a class="card-body card-body-sm" href={ uR.db.ih.TaskGroup.admin_new_url }>
-            <i class="btn-sm { uR.css.btn.primary } { uR.icon('plus') } { uR.css.right }"></i>
-            Group
-          </a>
-        </div>
-      </div>
       <div class="column col-6 task_{ uR.slugify(task.name) }" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body card-body-sm">
@@ -271,6 +255,14 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
   </div>
   <div class="container bottom-bar">
     <mode-widget></mode-widget>
+    <a class="btn-sm { uR.css.btn.primary }" href={ uR.db.ih.Task.admin_new_url }>
+      <i class="{ uR.icon('plus') }"></i>
+      Task
+    </a>
+    <a class="btn-sm { uR.css.btn.primary }" href={ uR.db.ih.TaskGroup.admin_new_url }>
+      <i class="{ uR.icon('plus') }"></i>
+      Group
+    </a>
     <div class="btn-group" onclick={ toggleEdit }>
       <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
       <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>

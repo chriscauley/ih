@@ -2,6 +2,7 @@ body {
   --gutter: 0.4rem;
 }
 @gutter: var(--gutter);
+@bottom-height: 60px;
 @blue: #5755d9;
 
 #main {
@@ -13,7 +14,7 @@ body {
 #content {
   background: white;
   height: 100%;
-  padding-bottom: 50px; // for bottom-bar
+  padding-bottom: @bottom-height;
   overflow: scroll;
 }
 #content, .bottom-bar {
@@ -78,14 +79,13 @@ task-list {
   background: #f8f8f8;
   display: flex;
   bottom: 0;
+  height: @bottom-height;
+  justify-content: space-between;
   left: 0;
-  padding: @gutter;
   right: 0;
   position: fixed;
   text-align: right;
-  > mode-widget, > .btn-group {
-    margin-right: 20px;
-  }
+  &:after { display: none; }
 }
 
 .top-right {
