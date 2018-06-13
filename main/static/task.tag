@@ -248,17 +248,6 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
           </a>
         </div>
       </div>
-      <div class="column col-4 hide-inactive">
-        <div class="card">
-          <div class="card-body card-body-sm pointer" onclick={ toggleEdit }>
-            <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
-            <div style="display:flex;">
-              <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
-              <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
-            </div>
-          </div>
-        </div>
-      </div>
       <div class="column col-6 task_{ uR.slugify(task.name) }" each={ task, i in tasks }>
         <div class="card">
           <div class="card-body card-body-sm">
@@ -282,6 +271,11 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
   </div>
   <div class="container bottom-bar">
     <mode-widget></mode-widget>
+    <div class="btn-group" onclick={ toggleEdit }>
+      <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
+      <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
+      <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
+    </div>
   </div>
   <script>
 this.mixin(uR.LunchTimeMixin)

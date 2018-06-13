@@ -13,6 +13,7 @@ body {
 #content {
   background: white;
   height: 100%;
+  padding-bottom: 50px; // for bottom-bar
   overflow: scroll;
 }
 #content, .bottom-bar {
@@ -73,16 +74,18 @@ task-list {
 }
 
 .bottom-bar {
-  background: #f8f8f8f;
+  align-items: center;
+  background: #f8f8f8;
   display: flex;
   bottom: 0;
-  justify-content: space-between;
-  overflow: visible;
   left: 0;
   padding: @gutter;
   right: 0;
   position: fixed;
   text-align: right;
+  > mode-widget, > .btn-group {
+    margin-right: 20px;
+  }
 }
 
 .top-right {
@@ -91,7 +94,7 @@ task-list {
   right: @gutter;
 }
 
-mode-viewer {
+mode-viewer, mode-widget {
   display: block;
 }
 
