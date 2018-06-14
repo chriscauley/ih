@@ -42,6 +42,9 @@ class Task extends uR.db.DataModel {
   isTimer() {
     return this.metrics && this.metrics.indexOf("timer") != -1;
   }
+  getClassName(riot_tag) {
+    return `column task_${uR.slugify(this.name)} col-6`
+  }
   getIcon(edit_mode) {
     if (edit_mode) { return "edit"; }
     if (this.isTimer()) { return "clock-o"; }
@@ -221,6 +224,29 @@ class Goal extends uR.db.DataModel {
 
 uR.db.register("ih",[Task,Goal,TaskGroup]);
 
+<task-card class={ task.getClassName(this) }>
+  <div class="card card-body">
+    <div>{ task.name }</div>
+    <div class="flexy">
+      <div each={ item,i in task.getDisplayItems(edit_mode) } onclick={ item.click }
+           class="{ 'pointer block': item.click }">
+        <i if={ item.click } class={ item.icon }></i>
+        { item.text }
+        <span if={ item.target_time } data-target_time={ item.target_time }></span>
+      </div>
+    </div>
+    <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(edit_mode)) }"
+            onclick={ clickTask } data-target_time={ task.started }></button>
+  </div>
+
+  <script>
+clickTask(e) {
+  var id = e.item.task.id;
+  if (this.edit_mode) { return e.item.task.edit(); }
+  e.item.task.click(e,this);
+}
+  </script>
+</task-card>
 <task-list>
   <div class="container" ur-mode={ edit_mode?"edit":"add" }>
     <div class="flexy">
@@ -232,25 +258,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
       </a>
     </div>
     <div class="columns">
-      <div class="column col-6 task_{ uR.slugify(task.name) }" each={ task, i in tasks }>
-        <div class="card">
-          <div class="card-body card-body-sm">
-            <div>
-              <div>{ task.name }</div>
-              <div class="flexy">
-                <div each={ item,i in task.getDisplayItems(edit_mode) } onclick={ item.click }
-                     class="{ 'pointer block': item.click }">
-                  <i if={ item.click } class={ item.icon }></i>
-                  { item.text }
-                  <span if={ item.target_time } data-target_time={ item.target_time }></span>
-                </div>
-              </div>
-              <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(edit_mode)) }"
-                      onclick={ clickTask } data-target_time={ task.started }></button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <task-card each={ task, i in tasks }></task-card>
     </div>
   </div>
   <div class="container bottom-bar">
@@ -299,14 +307,9 @@ this.on("route",function (new_opts={}) {
     this.tasks = this.group.task_set()
   } else {
     this.tasks = uR.db.ih.Goal.objects.all().filter(g => g.started && ! g.completed).map(g => g.task);
-    //this.tasks = this.tasks.concat(Task.objects.filter({group: undefined})) // this will be for misc for now
+    this.tasks = this.tasks.concat(Task.objects.filter({group: undefined})) // this will be for misc for now
     // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
   }
 })
-clickTask(e) {
-  var id = e.item.task.id;
-  if (this.edit_mode) { return e.item.task.edit(); }
-  e.item.task.click(e,this);
-}
   </script>
 </task-list>
