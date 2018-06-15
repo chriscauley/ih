@@ -34,7 +34,7 @@ class Task extends uR.db.DataModel {
     var METRIC_CHOICES = ["count","timer","distance","weight"];
     this.data_fields = [
       { name: "metrics", choices: METRIC_CHOICES, type: "checkbox", required: false },
-      { name: "reset_field", required: false, help_text: 'eg "new pack" or "new bag"' },
+      { name: "lap_timers", required: false, help_text: "Comma separated items to denote the start of each lap" },
       { name: "checklist", help_text: "Comma separated items to check off every time you do the task",
         required: false },
     ];
@@ -85,6 +85,7 @@ class Task extends uR.db.DataModel {
     var last = _.sortBy(goals,"completed").filter((g) => g.completed).pop();
     var time_delta = this.getTimeDelta(goals,next,last);
     var items = [];
+    if (next && next.started) { return items; }
 
     if (edit_mode) { // show next and last with edit buttons
       var _i = uR.icon('edit');
@@ -213,10 +214,14 @@ class Goal extends uR.db.DataModel {
     task = task && uR.db.ih.Task.objects.get(task);
     if (!task) { return }
     var checklist = task.checklist && task.checklist.split(",") || [];
-    task.reset_field && this.data_fields.push({ label: task.reset_field, type: "boolean", required: false });
     uR.forEach(checklist,function (check_name) {
       this.data_fields.push({ label: check_name, type: "boolean", required: false });
     },this);
+    if (task.lap_timers) {
+      var start = () => this.started && this.started.unixtime();
+      var choices = task.lap_timers.split(",")
+      this.data_fields.push({ label: "Lap", type: "lap-timer", required: false, choices: choices, start: start })
+    }
     var metrics = task.metrics;
     if (metrics) {
       metrics.indexOf('count') != -1 && this.data_fields.push({ name: "count", type: "integer" });
@@ -230,7 +235,7 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
 
 <task-card class={ task.getClassName(this) }>
   <div class="card card-body">
-    <div>{ task.name }</div>
+    <div class="task-name">{ task.name }</div>
     <div class="flexy">
       <div each={ item,i in task.getDisplayItems(parent.edit_mode) } onclick={ item.click }
            class="{ 'pointer block': item.click }">
@@ -241,11 +246,11 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
     </div>
     <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(parent.edit_mode)) }"
             onclick={ clickTask } data-target_time={ task.started }></button>
-    <div data-is={ getTaskCard() } schema={ task.getMiniSchema() } autosubmit="true" theme={ new Object() }
-         action={ form_action } submit={ saveGoal } method="POST"></div>
+    <div data-is={ form.data_is } opts={ form }></div>
   </div>
 
   <script>
+  this.form = {};
 clickTask(e) {
   var id = e.item.task.id;
   if (this.parent.edit_mode) { return e.item.task.edit(); }
@@ -255,6 +260,21 @@ getTaskCard() {
   var goal = this.task.getNotCompleted();
   if (goal && goal.started && goal.data_fields && goal.data_fields.length) { return "ur-form" }
 }
+this.on("mount", function() { this.update() });
+this.on("update", function() {
+  this.form = {}
+  var goal = this.task.getNotCompleted();
+  if (!goal) { return }
+  if (goal.started && goal.data_fields && goal.data_fields.length) {
+    this.form = {
+      "data_is": "ur-form",
+      schema: this.task.getMiniSchema(),
+      autosubmit: true,
+      theme: { outer: 'mini-form' },
+      submit: (riot_tag) => this.saveGoal(riot_tag),
+    }
+  }
+})
 saveGoal(riot_tag) {
   var data = riot_tag.getData();
   var goal = this.task.getNotCompleted();
