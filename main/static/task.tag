@@ -58,6 +58,10 @@ class Task extends uR.db.DataModel {
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
     return this.id && (goals || this.goal_set()).filter((g) => !g.completed)[0];
   }
+  getMiniSchema() {
+    var goal = this.getNotCompleted();
+    if (goal && goal.started) { return goal.data_fields }
+  }
   adminPostRender() {
     var options = {
       parent: document.querySelector("ur-form .post-form"),
@@ -228,22 +232,43 @@ uR.db.register("ih",[Task,Goal,TaskGroup]);
   <div class="card card-body">
     <div>{ task.name }</div>
     <div class="flexy">
-      <div each={ item,i in task.getDisplayItems(edit_mode) } onclick={ item.click }
+      <div each={ item,i in task.getDisplayItems(parent.edit_mode) } onclick={ item.click }
            class="{ 'pointer block': item.click }">
         <i if={ item.click } class={ item.icon }></i>
         { item.text }
         <span if={ item.target_time } data-target_time={ item.target_time }></span>
       </div>
     </div>
-    <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(edit_mode)) }"
+    <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(parent.edit_mode)) }"
             onclick={ clickTask } data-target_time={ task.started }></button>
+    <div data-is={ getTaskCard() } schema={ task.getMiniSchema() } autosubmit="true" theme={ new Object() }
+         action={ form_action } submit={ saveGoal } method="POST"></div>
   </div>
 
   <script>
 clickTask(e) {
   var id = e.item.task.id;
-  if (this.edit_mode) { return e.item.task.edit(); }
+  if (this.parent.edit_mode) { return e.item.task.edit(); }
   e.item.task.click(e,this);
+}
+getTaskCard() {
+  var goal = this.task.getNotCompleted();
+  if (goal && goal.started && goal.data_fields && goal.data_fields.length) { return "ur-form" }
+}
+saveGoal(riot_tag) {
+  var data = riot_tag.getData();
+  var goal = this.task.getNotCompleted();
+  if (!goal) { throw "NotImpletmented" }
+  for (var key in data) { goal[key] = data[key]; }
+  this.ajax({
+    url: "/api/schema/ih.GoalForm/"+goal.id+"/",
+    method: "POST",
+    data: {task: goal.task.id, data: goal.toJson().data},
+    success(data) {
+      var goal = new Goal({ values_list: data.values_list });
+      goal.task.cache_delta = "undefined";
+    },
+  });
 }
   </script>
 </task-card>
@@ -307,7 +332,9 @@ this.on("route",function (new_opts={}) {
     this.tasks = this.group.task_set()
   } else {
     this.tasks = uR.db.ih.Goal.objects.all().filter(g => g.started && ! g.completed).map(g => g.task);
-    this.tasks = this.tasks.concat(Task.objects.filter({group: undefined})) // this will be for misc for now
+    // this will be for misc for now
+    var orphan_tasks = Task.objects.filter({group: undefined}).filter(t => this.tasks.indexOf(t) == -1)
+    this.tasks = this.tasks.concat(orphan_tasks);
     // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
   }
 })
