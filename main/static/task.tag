@@ -45,14 +45,12 @@ class Task extends uR.db.DataModel {
   getClassName(riot_tag) {
     return `column task_${uR.slugify(this.name)} col-6`
   }
-  getIcon(edit_mode) {
-    if (edit_mode) { return "edit"; }
-    if (this.isTimer()) { return "clock-o"; }
-    return "check";
-  }
   getIntervalDisplay() {
     if (!isNaN(this.interval)) { return `every ${this.interval} days` }
     return uR.unslugify(this.interval || "");
+  }
+  getGoal() {
+    return this.getNotCompleted();
   }
   getNotCompleted(goals) {
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
@@ -79,7 +77,7 @@ class Task extends uR.db.DataModel {
     }
     uR.newElement("ur-pagination",options,riot_options);
   }
-  getDisplayItems(edit_mode) {
+  getDisplayItems() {
     var goals = _.sortBy(this.goal_set(),'targeted');
     var next = this.getNotCompleted(goals);
     var last = _.sortBy(goals,"completed").filter((g) => g.completed).pop();
@@ -87,7 +85,7 @@ class Task extends uR.db.DataModel {
     var items = [];
     if (next && next.started) { return items; }
 
-    if (edit_mode) { // show next and last with edit buttons
+    if (ih.edit_mode) { // show next and last with edit buttons
       var _i = uR.icon('edit');
       last && items.push({ icon: _i, click: (e) => last.edit(), target_time: last.completed.unixtime(),
                            text: "Last: "});
@@ -206,23 +204,24 @@ uR.db.register("ih",[Task,TaskGroup]);
   <div class="card card-body">
     <div class="task-name">{ task.name }</div>
     <div class="flexy">
-      <div each={ item,i in task.getDisplayItems(parent.edit_mode) } onclick={ item.click }
+      <div each={ item,i in task.getDisplayItems() } onclick={ item.click }
            class="{ 'pointer block': item.click }">
         <i if={ item.click } class={ item.icon }></i>
         { item.text }
         <span if={ item.target_time } data-target_time={ item.target_time }></span>
       </div>
     </div>
-    <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(parent.edit_mode)) }"
+    <button class="btn btn-sm btn-primary top-right { uR.icon(goal.action_icon) }"
             onclick={ clickTask } data-target_time={ task.started }></button>
     <div data-is={ form.data_is } opts={ form }></div>
   </div>
 
   <script>
   this.form = {};
+  this.goal = {};
 clickTask(e) {
   var id = e.item.task.id;
-  if (this.parent.edit_mode) { return e.item.task.edit(); }
+  if (ih.edit_mode) { return e.item.task.edit(); }
   e.item.task.click(e,this);
 }
 getTaskCard() {
@@ -231,9 +230,10 @@ getTaskCard() {
 }
 this.on("mount", function() { this.update() });
 this.on("update", function() {
-  this.form = {}
-  var goal = this.task.getNotCompleted();
-  if (!goal) { return }
+  this.form = {};
+  var goal = this.goal = this.task.getNotCompleted();
+  if (!goal) { this.goal = {}; return }
+  goal.update();
   if (goal.started && goal.data_fields && goal.data_fields.length) {
     this.form = {
       "data_is": "ur-form",
@@ -262,7 +262,7 @@ saveGoal(riot_tag) {
   </script>
 </task-card>
 <task-list>
-  <div class="container" ur-mode={ edit_mode?"edit":"add" }>
+  <div class="container" ur-mode={ ih.edit_mode?"edit":"add" }>
     <div class="flexy">
       <a href="/" class="card card-body card-body-sm" data-badge={ active_timers.length || "" }>
         <i class="fa-2x { uR.icon('home') }"></i>
@@ -286,9 +286,9 @@ saveGoal(riot_tag) {
       Group
     </a>
     <div class="btn-group" onclick={ toggleEdit }>
-      <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
-      <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
-      <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
+      <!-- <span>{ ih.edit_mode?'Edit':'Add' } Mode</span> -->
+      <i class="btn-sm { uR.css.btn[ih.edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
+      <i class="btn-sm { uR.css.btn[ih.edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
     </div>
   </div>
   <script>
@@ -302,10 +302,9 @@ this.on("mount",function() {
   setTimeout(function() { self.update() },1000)
 });
 toggleEdit(e) {
-  this.edit_mode = !this.edit_mode;
+  ih.edit_mode = !ih.edit_mode;
 }
 this.on("update",function() {
-  var edit_mode = this.edit_mode;
   String.lunch.watchTimers();
   this.active_timers = uR.db.ih.Goal.objects.all().filter(g => g.started && !g.completed);
 });

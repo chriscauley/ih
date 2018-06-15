@@ -15,16 +15,8 @@
         required: false },
     ];
   }
-  isTimer() {
-    return this.metrics && this.metrics.indexOf("timer") != -1;
-  }
   getClassName(riot_tag) {
     return `column task_${uR.slugify(this.name)} col-6`
-  }
-  getIcon(edit_mode) {
-    if (edit_mode) { return "edit"; }
-    if (this.isTimer()) { return "clock-o"; }
-    return "check";
   }
   getIntervalDisplay() {
     if (!isNaN(this.interval)) { return `every ${this.interval} days` }
@@ -205,6 +197,13 @@ class Goal extends uR.db.DataModel {
       metrics.indexOf('distance') != -1 && this.data_fields.push({ name: "distance", type: "number" });
       metrics.indexOf('weight') != -1 && this.data_fields.push({ name: "weight", type: "number" });
     }
+  }
+  isTimer() {
+    return this.metrics && this.metrics.indexOf("timer") != -1;
+  }
+  update() {
+    if (ih.edit_mode) { this.action_icon = "edit"; }
+    else { this.action_icon = this.isTimer()?"clock-o":"check" }
   }
 }
 
