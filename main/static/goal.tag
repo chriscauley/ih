@@ -199,6 +199,7 @@ class Goal extends uR.db.DataModel {
   }
   update() {
     if (ih.edit_mode) { this.action_icon = "edit"; }
+    else if (this.started) { this.action_icon = "spinner fa-spin" }
     else { this.action_icon = this.isTimer()?"clock-o":"check" }
   }
   getMiniSchema() {

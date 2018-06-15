@@ -197,8 +197,10 @@ uR.db.register("ih",[Task,TaskGroup]);
         <span if={ item.target_time } data-target_time={ item.target_time }></span>
       </div>
     </div>
-    <button class="btn btn-sm btn-primary top-right { uR.icon(goal.action_icon) }"
-            onclick={ clickTask } data-target_time={ task.started }></button>
+    <button class="btn btn-sm btn-primary top-right" onclick={ clickTask }>
+      <i class={ uR.icon(goal.action_icon) }></i>
+      <span data-target_time={ goal.started.unixtime() }></span>
+    </button>
     <div data-is={ form.data_is } opts={ form }></div>
   </div>
 
