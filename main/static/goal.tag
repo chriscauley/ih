@@ -1,28 +1,4 @@
-class TaskGroup extends uR.db.Model {
-  constructor(opts={}) {
-    opts._is_api = true;
-    super(opts);
-  }
-  __str() {
-    return this.name;
-  }
-}
-
-var FIRST_TIMES = {
-  "Arm Curls": 9,
-  "Beer": 19,
-  "Eat": 10,
-  "Smoke Cigarette": 11,
-}
-
-var MINUTES_BETWEEN = {
-  "Arm Curls": 3,
-  "Beer": 90,
-  "Eat": 6*60,
-  "Smoke Cigarette": 180,
-}
-
-class Task extends uR.db.DataModel {
+/*class Task extends uR.db.DataModel {
   constructor(opts={}) {
     opts._is_api = true;
     super(opts);
@@ -199,133 +175,37 @@ class Task extends uR.db.DataModel {
     });
   };
 }
-
-uR.db.register("ih",[Task,TaskGroup]);
-
-<task-card class={ task.getClassName(this) }>
-  <div class="card card-body">
-    <div class="task-name">{ task.name }</div>
-    <div class="flexy">
-      <div each={ item,i in task.getDisplayItems(parent.edit_mode) } onclick={ item.click }
-           class="{ 'pointer block': item.click }">
-        <i if={ item.click } class={ item.icon }></i>
-        { item.text }
-        <span if={ item.target_time } data-target_time={ item.target_time }></span>
-      </div>
-    </div>
-    <button class="btn btn-sm btn-primary top-right { uR.icon(task.getIcon(parent.edit_mode)) }"
-            onclick={ clickTask } data-target_time={ task.started }></button>
-    <div data-is={ form.data_is } opts={ form }></div>
-  </div>
-
-  <script>
-  this.form = {};
-clickTask(e) {
-  var id = e.item.task.id;
-  if (this.parent.edit_mode) { return e.item.task.edit(); }
-  e.item.task.click(e,this);
-}
-getTaskCard() {
-  var goal = this.task.getNotCompleted();
-  if (goal && goal.started && goal.data_fields && goal.data_fields.length) { return "ur-form" }
-}
-this.on("mount", function() { this.update() });
-this.on("update", function() {
-  this.form = {}
-  var goal = this.task.getNotCompleted();
-  if (!goal) { return }
-  if (goal.started && goal.data_fields && goal.data_fields.length) {
-    this.form = {
-      "data_is": "ur-form",
-      schema: this.task.getMiniSchema(),
-      autosubmit: true,
-      theme: { outer: 'mini-form' },
-      submit: (riot_tag) => this.saveGoal(riot_tag),
+*/
+class Goal extends uR.db.DataModel {
+  constructor(opts={}) {
+    opts._is_api = true;
+    super(opts);
+  }
+  __str() {
+    var time_string = this.completed?"DONE: "+this.completed.hdatetime():"t"+this.targeted.htimedelta();
+    return `${this.task.name} ${time_string}`
+  }
+  createDataFields() {
+    super.createDataFields();
+    var task = this.schema.get("task").value;
+    task = task && uR.db.ih.Task.objects.get(task);
+    if (!task) { return }
+    var checklist = task.checklist && task.checklist.split(",") || [];
+    uR.forEach(checklist,function (check_name) {
+      this.data_fields.push({ label: check_name, type: "boolean", required: false });
+    },this);
+    if (task.lap_timers) {
+      var start = () => this.started && this.started.unixtime();
+      var choices = task.lap_timers.split(",")
+      this.data_fields.push({ label: "Lap", type: "lap-timer", required: false, choices: choices, start: start })
+    }
+    var metrics = task.metrics;
+    if (metrics) {
+      metrics.indexOf('count') != -1 && this.data_fields.push({ name: "count", type: "integer" });
+      metrics.indexOf('distance') != -1 && this.data_fields.push({ name: "distance", type: "number" });
+      metrics.indexOf('weight') != -1 && this.data_fields.push({ name: "weight", type: "number" });
     }
   }
-})
-saveGoal(riot_tag) {
-  var data = riot_tag.getData();
-  var goal = this.task.getNotCompleted();
-  if (!goal) { throw "NotImpletmented" }
-  for (var key in data) { goal[key] = data[key]; }
-  this.ajax({
-    url: "/api/schema/ih.GoalForm/"+goal.id+"/",
-    method: "POST",
-    data: {task: goal.task.id, data: goal.toJson().data},
-    success(data) {
-      var goal = new Goal({ values_list: data.values_list });
-      goal.task.cache_delta = "undefined";
-    },
-  });
 }
-  </script>
-</task-card>
-<task-list>
-  <div class="container" ur-mode={ edit_mode?"edit":"add" }>
-    <div class="flexy">
-      <a href="/" class="card card-body card-body-sm" data-badge={ active_timers.length || "" }>
-        <i class="fa-2x { uR.icon('home') }"></i>
-      </a>
-      <a each={ group, i in taskgroups } href="/group/{group.id}/" class="card card-body card-body-sm">
-        <i class="fa-2x { uR.icon(group.icon) }"></i>
-      </a>
-    </div>
-    <div class="columns">
-      <task-card each={ task, i in tasks }></task-card>
-    </div>
-  </div>
-  <div class="container bottom-bar">
-    <mode-widget></mode-widget>
-    <a class="btn-sm { uR.css.btn.primary }" href={ uR.db.ih.Task.admin_new_url }>
-      <i class="{ uR.icon('plus') }"></i>
-      Task
-    </a>
-    <a class="btn-sm { uR.css.btn.primary }" href={ uR.db.ih.TaskGroup.admin_new_url }>
-      <i class="{ uR.icon('plus') }"></i>
-      Group
-    </a>
-    <div class="btn-group" onclick={ toggleEdit }>
-      <!-- <span>{ edit_mode?'Edit':'Add' } Mode</span> -->
-      <i class="btn-sm { uR.css.btn[edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
-      <i class="btn-sm { uR.css.btn[edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
-    </div>
-  </div>
-  <script>
-this.mixin(uR.LunchTimeMixin)
-this.on("before-mount", function() { // #! TODO: move to uR.AjaxMixin
-  this.page = {results: []};
-  this.active_timers = [];
-})
-this.on("mount",function() {
-  var self = this;
-  setTimeout(function() { self.update() },1000)
-});
-toggleEdit(e) {
-  this.edit_mode = !this.edit_mode;
-}
-this.on("update",function() {
-  var edit_mode = this.edit_mode;
-  String.lunch.watchTimers();
-  this.active_timers = uR.db.ih.Goal.objects.all().filter(g => g.started && !g.completed);
-});
-this.on("route",function (new_opts={}) {
-  _.extend(this.opts,new_opts);
-  this.taskgroups = uR.db.ih.TaskGroup.objects.all();
-  this.group = undefined;
-  var group_id = this.opts.matches && this.opts.matches[1];
-  if (group_id == "misc") {
-    // eventually this will show ungrouped tasks
-  } else if (group_id) {
-    this.group = uR.db.ih.TaskGroup.objects.get(group_id);
-    this.tasks = this.group.task_set()
-  } else {
-    this.tasks = uR.db.ih.Goal.objects.all().filter(g => g.started && ! g.completed).map(g => g.task);
-    // this will be for misc for now
-    var orphan_tasks = Task.objects.filter({group: undefined}).filter(t => this.tasks.indexOf(t) == -1)
-    this.tasks = this.tasks.concat(orphan_tasks);
-    // this.tasks = _.chain(ih.tasks).sortBy("last_time").sortBy("target_time").value();
-  }
-})
-  </script>
-</task-list>
+
+uR.db.register("ih",[Goal]);
