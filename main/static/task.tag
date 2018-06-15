@@ -56,10 +56,6 @@ class Task extends uR.db.DataModel {
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
     return this.id && (goals || this.goal_set()).filter((g) => !g.completed)[0];
   }
-  getMiniSchema() {
-    var goal = this.getNotCompleted();
-    if (goal && goal.started) { return goal.data_fields }
-  }
   adminPostRender() {
     var options = {
       parent: document.querySelector("ur-form .post-form"),
@@ -237,28 +233,13 @@ this.on("update", function() {
   if (goal.started && goal.data_fields && goal.data_fields.length) {
     this.form = {
       "data_is": "ur-form",
-      schema: this.task.getMiniSchema(),
+      schema: goal.getMiniSchema(),
       autosubmit: true,
       theme: { outer: 'mini-form' },
-      submit: (riot_tag) => this.saveGoal(riot_tag),
+      submit: (riot_tag) => goal.saveMe(riot_tag),
     }
   }
 })
-saveGoal(riot_tag) {
-  var data = riot_tag.getData();
-  var goal = this.task.getNotCompleted();
-  if (!goal) { throw "NotImpletmented" }
-  for (var key in data) { goal[key] = data[key]; }
-  this.ajax({
-    url: "/api/schema/ih.GoalForm/"+goal.id+"/",
-    method: "POST",
-    data: {task: goal.task.id, data: goal.toJson().data},
-    success(data) {
-      var goal = new Goal({ values_list: data.values_list });
-      goal.task.cache_delta = "undefined";
-    },
-  });
-}
   </script>
 </task-card>
 <task-list>

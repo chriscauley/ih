@@ -26,10 +26,6 @@
     // the goal_set lookup is slow right now, so we can pass in goals to avoid another round of parsing.
     return this.id && (goals || this.goal_set()).filter((g) => !g.completed)[0];
   }
-  getMiniSchema() {
-    var goal = this.getNotCompleted();
-    if (goal && goal.started) { return goal.data_fields }
-  }
   adminPostRender() {
     var options = {
       parent: document.querySelector("ur-form .post-form"),
@@ -199,11 +195,27 @@ class Goal extends uR.db.DataModel {
     }
   }
   isTimer() {
-    return this.metrics && this.metrics.indexOf("timer") != -1;
+    return this.task.metrics.indexOf("timer") != -1;
   }
   update() {
     if (ih.edit_mode) { this.action_icon = "edit"; }
     else { this.action_icon = this.isTimer()?"clock-o":"check" }
+  }
+  getMiniSchema() {
+    return this.started && this.data_fields;
+  }
+  saveMe(riot_tag) {
+    var data = riot_tag.getData();
+    for (var key in data) { this[key] = data[key]; }
+    this.ajax({
+      url: "/api/schema/ih.GoalForm/"+this.id+"/",
+      method: "POST",
+      data: {task: this.task.id, data: this.toJson().data},
+      success(data) {
+        var goal = new Goal({ values_list: data.values_list });
+        goal.task.cache_delta = "undefined";
+      },
+    });
   }
 }
 
