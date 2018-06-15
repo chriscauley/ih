@@ -204,10 +204,10 @@ class Goal extends uR.db.DataModel {
   getMiniSchema() {
     return this.started && this.data_fields;
   }
-  saveMe(riot_tag) {
-    var data = riot_tag.getData();
+  saveMe(riot_tag,data={}) {
+    _.extend(data,riot_tag.getData && riot_tag.getData() || {});
     for (var key in data) { this[key] = data[key]; }
-    this.ajax({
+    riot_tag.ajax({
       url: "/api/schema/ih.GoalForm/"+this.id+"/",
       method: "POST",
       data: {task: this.task.id, data: this.toJson().data},

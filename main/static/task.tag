@@ -178,20 +178,10 @@ class Task extends uR.db.DataModel {
     var data = { task: this.id };
     var now = moment().format("YYYY-MM-DD HH:mm:ss");
     var field = "completed";
-    if (this.isTimer()) {
-      field = goal.started?'completed':'started';
-    }
-    goal[field] = data[field] = now;
-    riot_tag.ajax({
-      url: "/api/schema/ih.GoalForm/"+goal.id+"/",
-      method: "POST",
-      data: data,
-      success: function(data) {
-        var goal = new Goal({ values_list: data.values_list });
-        goal.task.cache_delta = "undefined";
-      },
-    });
-  };
+    if (this.isTimer()) { field = goal.started?'completed':'started'; }
+    data[field] = now;
+    goal.saveMe(riot_tag,data)
+  }
 }
 
 uR.db.register("ih",[Task,TaskGroup]);
