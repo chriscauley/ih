@@ -12,7 +12,8 @@
     }
     if (reset) {
       return function loginWithReset(pass,fail) {
-        'Task,TaskGroup,Goal,Mode'.split(',').forEach(m => uR.db.ih[m].objects.clear());
+        var models = 'Task,TaskGroup,Goal,Mode'.split(",").map(s=>uR.db.ih[s]);
+        models.forEach(m => m.objects.clear());
         // [uR.db.ih.Task,uR.db.ih.TaskGroup,uR.db.ih.Goal].forEach(m => console.log(m.objects.all()));
         uR.ajax({
           url: '/api/test/reset/',
@@ -57,17 +58,58 @@
       .route("/").wait(1000)
       .checkResults(".task_smoke")
 
-      // .comment("Timer @+0s.")
-      // .click(".task_smoke .fa-clock-o").wait(1000)
-      // .checkResults(".task_smoke")
+      .comment("Timer @+0s.")
+      .click(".task_smoke .fa-clock-o").wait(1000)
+      .checkResults(".task_smoke")
 
-      // .comment("Timer @+60s.")
-      // .shiftTime(60,"seconds").wait(1000)
-      // .checkResults(".task_smoke")
+      .comment("Timer @+60s.")
+      .shiftTime(60,"seconds").wait(1000)
+      .checkResults(".task_smoke")
 
-      // .comment("Timer Closed.")
-      // .click(".task_smoke .fa-clock-o").wait(1000)
-      // .checkResults(".task_smoke")
+      .comment("Timer Closed.")
+      .click(".task_smoke .fa-clock-o").wait(1000)
+      .checkResults(".task_smoke")
+  }
+
+  function TestLapTimer() {
+    uC.USE_GROUPS = false;
+    var s = ".task_running"
+
+    this.do().then(login(0,true))
+      .shiftTime(SHIFT_TO)
+      .then(createObjects("ih.Task","running"))
+      .route("/").wait(1000)
+
+      .comment("Timer +0s")
+      .click(s+" .fa-clock-o").wait(1000)
+      .checkResults(s)
+
+      .comment("Timer +30s")
+      .shiftTime(30,"seconds").wait(1000)
+      .checkResults(s)
+
+      .comment("Switch to running")
+      .click(s+" .lap__run").wait(1000)
+      .checkResults(s)
+
+      .comment("Run 4x 3 minute laps")
+      .shiftTime(3,"minutes")
+      .click(s+" .lap__run")
+      .shiftTime(3,"minutes")
+      .click(s+" .lap__run")
+      .shiftTime(3,"minutes")
+      .click(s+" .lap__run")
+      .shiftTime(3,"minutes")
+      .checkResults(s)
+
+      .comment("Jog 5 minutes")
+      .click(s+" .lap__jog")
+      .shiftTime(5,"minutes").wait(1000)
+      .checkResults(s)
+
+      .comment("Finish run")
+      .click(s+" .fa-clock-o").wait(1000)
+      .checkResults(s)
   }
 
   function Test3TimesADay() {
@@ -95,5 +137,11 @@
     // #! verify task is 3 hours in the future
     // #! start+completed again, this time completion should be tomorrow
   }
-  konsole.addCommands(TestLogin,TestTimer,Test3TimesADay,TestModes);
+  konsole.addCommands(
+    TestLogin,
+    TestTimer,
+    TestLapTimer,
+    Test3TimesADay,
+    TestModes,
+  );
 })()

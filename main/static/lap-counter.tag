@@ -43,13 +43,15 @@ this.on("before-mount",function() {
 
 this.on("update", function() {
   var value = this.field && this.field.value || [];
+  this.past_laps = [];
   this.root.querySelector("input").value = JSON.stringify(value);
   var last = value.length && value[value.length-1][0];
   _.each(this.choices,function(choice,ic) {
     choice.className = uR.css.btn[(last && last == choice.value)?"primary":"default"];
+    choice.className += " lap__"+choice.value;
   });
 
-  this.past_laps = [];
+  if (!value.length) { return }
   var i = value.length-1;
   this.current_lap = value[i]; // last item in value list
   var last_time = this.current_lap[1];

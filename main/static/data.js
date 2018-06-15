@@ -35,11 +35,13 @@
     'name', [
       ['smoke',3,1,_getGroup('vices'),'evil','smoking',
        ['timer'],'bum one,new pack'],
+      ['running',1,1,_getGroup('vices'),'good',null,
+       ['timer'],null,'walk,jog,run'],
       ['shower',1,3,_getGroup('hygene'),'neutral',null,
        ['timer'],"shave, wash hair, condition hair, private hair"],
       ['press button three times',1,3,null,'neutral'],
     ],
-    ['name','per_time','interval','group','alignment','icon','metrics','checklist']
+    ['name','per_time','interval','group','alignment','icon','metrics','checklist','lap_timers']
   )
 
   uC._makeObjects = function _makeObjects(model_key,...items) {
