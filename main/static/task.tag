@@ -39,9 +39,6 @@ class Task extends uR.db.DataModel {
         required: false },
     ];
   }
-  isTimer() {
-    return this.metrics && this.metrics.indexOf("timer") != -1;
-  }
   getClassName(riot_tag) {
     return `column task_${uR.slugify(this.name)} col-6`
   }
@@ -178,7 +175,7 @@ class Task extends uR.db.DataModel {
     var data = { task: this.id };
     var now = moment().format("YYYY-MM-DD HH:mm:ss");
     var field = "completed";
-    if (this.isTimer()) { field = goal.started?'completed':'started'; }
+    field = goal.started?'completed':'started';
     data[field] = now;
     goal.saveMe(riot_tag,data)
   }
