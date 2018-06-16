@@ -195,7 +195,7 @@ class Goal extends uR.db.DataModel {
     }
   }
   isTimer() {
-    return this.task.metrics.indexOf("timer") != -1;
+    return this.task.metrics && this.task.metrics.indexOf("timer") != -1;
   }
   update() {
     if (ih.edit_mode) { this.action_icon = "edit"; }
@@ -206,12 +206,14 @@ class Goal extends uR.db.DataModel {
     return this.started && this.data_fields;
   }
   saveMe(riot_tag,data={}) {
-    _.extend(data,riot_tag.getData && riot_tag.getData() || {});
-    for (var key in data) { this[key] = data[key]; }
+    _.extend(this,riot_tag.getData && riot_tag.getData() || {});
+    data.data = this.toJson().data;
+    data.task = this.task.id
+
     riot_tag.ajax({
       url: "/api/schema/ih.GoalForm/"+this.id+"/",
       method: "POST",
-      data: {task: this.task.id, data: this.toJson().data},
+      data: data,
       success(data) {
         var goal = new Goal({ values_list: data.values_list });
         goal.task.cache_delta = "undefined";
