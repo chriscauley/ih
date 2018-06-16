@@ -6,6 +6,7 @@
     'cat-feeder',
     'cat-brush',
     'cigarettes',
+    'cleaning',
     'dental-floss',
     'drop',
     'dryer',
