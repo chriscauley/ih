@@ -39,6 +39,9 @@ window.ih = {
 };
 uR.config.form_prefix = "#";
 uR.ready(function() {
+  uR.config.name_overrides.created = { type: "datetime-local" };
+  uR.config.name_overrides.updated = { type: "datetime-local" };
+  uR.config.name_overrides.deleted = { type: "datetime-local" };
   uR.config.name_overrides.completed = { type: "datetime-local" };
   uR.config.name_overrides.started = { type: "datetime-local" };
   uR.config.name_overrides.targeted = { type: "datetime-local" };
