@@ -16,6 +16,19 @@ class ModeChange extends uR.db.Model {
   __str() {
     return this.mode.name;
   }
+  cycleDelete(e) {
+    // this should probably be abstracted to the manager, Model.objects.cycleDelete()
+    var mc = e.item.mc; // since this is being called inside a tag, "this" is not the ModeChange instance
+    var u = mc.deleted?"?undo":"";
+    uR.ajax({
+      url: `/api/schema/ih.ModeChangeForm/${mc.id}/${u}`,
+      method: "DELETE",
+      success(data) {
+        mc.deleted = u?"":new Date().valueOf();
+        riot.update();
+      }
+    })
+  }
 }
 
 uR.db.register("ih",[Mode,ModeChange])
@@ -51,22 +64,34 @@ openViewer(e) {
       <a href={ uR.db.ih.Mode.admin_new_url } class="card">
         <div class="card-body">
           <i class={ uR.icon("plus") }></i>
-          Add new Mode monkey
+          Add new Mode
         </div>
       </a>
     </ur-tab>
     <ur-tab title="History">
-      Yay history!
+      <table class="table table-striped table-hover">
+        <tr each={ mc, i in ih.todays_modechanges }>
+          <td><a class={ uR.icon("edit") } href={ mc.getAdminUrl() }></a></td>
+          <td>{ mc.mode.name }</td>
+          <td>{ mc.created.hdatetime() }</td>
+          <td><a class='{ uR.icon(mc.deleted?"undo":"trash") } pointer' onclick={ mc.cycleDelete }></a></td>
+        </tr>
+      </table>
     </ur-tab>
   </ur-tabs>
 
   <script>
+this.todays_modechanges = [];
 this.on("route",function() {
   this.update(); //#! this is clunky... should be happening automatically!
   ih.setMode = e => this.setMode(e)
 });
 this.on("update", function() {
   ih.last_change = ih.getLastModeChange();
+  var yesterday = moment().add(-1,"days").format("YYYY-MM-DD");
+  ih.todays_modechanges = uR.db.ih.ModeChange.objects.filter({ created__gte: yesterday });
+  ih.todays_modechanges = _.sortBy(ih.todays_modechanges,"created")
+
   ih.modes = uR.db.ih.Mode.objects.all().sort(function(m1,m2) {
     if (m1.name > m2.name) { return 1 }
     return (m2.name>m1.name)?-1:0;
