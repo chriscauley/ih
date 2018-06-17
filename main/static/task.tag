@@ -81,7 +81,7 @@ class Task extends uR.db.DataModel {
     var items = [];
     if (next && next.started) { return items; }
 
-    if (ih.edit_mode) { // show next and last with edit buttons
+    if (ih.ui_mode == "edit") { // show next and last with edit buttons
       var _i = uR.icon('edit');
       last && items.push({ icon: _i, click: (e) => last.edit(), target_time: last.completed.unixtime(),
                            text: "Last: "});
@@ -209,7 +209,7 @@ uR.db.register("ih",[Task,TaskGroup]);
   this.goal = {};
 clickTask(e) {
   var id = e.item.task.id;
-  if (ih.edit_mode) { return e.item.task.edit(); }
+  if (ih.ui_mode == "edit") { return e.item.task.edit(); }
   e.item.task.click(e,this);
 }
 getTaskCard() {
@@ -235,7 +235,7 @@ this.on("update", function() {
   </script>
 </task-card>
 <task-list>
-  <div class="container" ur-mode={ ih.edit_mode?"edit":"add" }>
+  <div class="container" ur-mode={ ih.ui_mode }>
     <div class="flexy">
       <a href="/" class="card card-body card-body-sm" data-badge={ active_timers.length || "" }>
         <i class="fa-2x { uR.icon('home') }"></i>
@@ -259,9 +259,7 @@ this.on("update", function() {
       Group
     </a>
     <div class="btn-group" onclick={ toggleEdit }>
-      <!-- <span>{ ih.edit_mode?'Edit':'Add' } Mode</span> -->
-      <i class="btn-sm { uR.css.btn[ih.edit_mode?'default':'primary'] } { uR.icon("check") } { uR.css.right }"></i>
-      <i class="btn-sm { uR.css.btn[ih.edit_mode?'primary':'default'] } { uR.icon("edit") } { uR.css.right }"></i>
+      <i each={ b in buttons } class="btn-sm { b.className } { uR.icon(b.icon) } { uR.css.right }"></i>
     </div>
   </div>
   <script>
@@ -275,11 +273,20 @@ this.on("mount",function() {
   setTimeout(function() { self.update() },1000)
 });
 toggleEdit(e) {
-  ih.edit_mode = !ih.edit_mode;
+  if (!ih.ui_mode) { ih.ui_mode = "edit"; }
+  else if (ih.ui_mode == "edit") { ih.ui_mode = "info"; }
+  else { ih.ui_mode = undefined; }
 }
 this.on("update",function() {
   String.lunch.watchTimers();
   this.active_timers = uR.db.ih.Goal.objects.all().filter(g => g.started && !g.completed);
+  var a2c = active => uR.css.btn[active?'primary':'default'];
+  var inactive = uR.css.btn.default;
+  this.buttons = [
+    { icon: "check", className: a2c(!ih.ui_mode) },
+    { icon: "edit", className: a2c(ih.ui_mode == "edit") },
+    { icon: "info", className: a2c(ih.ui_mode == "info") },
+  ];
 });
 this.on("route",function (new_opts={}) {
   _.extend(this.opts,new_opts);
