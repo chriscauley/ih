@@ -33,6 +33,9 @@ class Task extends uR.db.DataModel {
   createDataFields() {
     var METRIC_CHOICES = ["count","timer","distance","weight"];
     this.data_fields = [
+      { name: "trigger-mode", help_text: "Automatically switch to this mode when this task is triggered",
+        type: "select", choices: () => [undefined].concat(Mode.objects.all().map(m=>[m.id,m.name])),
+        required: false },
       { name: "metrics", choices: METRIC_CHOICES, type: "checkbox", required: false },
       { name: "lap_timers", required: false, help_text: "Comma separated items to denote the start of each lap" },
       { name: "checklist", help_text: "Comma separated items to check off every time you do the task",
