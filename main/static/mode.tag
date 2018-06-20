@@ -29,6 +29,17 @@ class ModeChange extends uR.db.Model {
       }
     })
   }
+  saveAjax(riot_tag) {
+    riot_tag.ajax({
+      url: "/api/schema/ih.ModeChangeForm/",
+      method: "POST",
+      data: { mode: this.mode.id },
+      success: function(data) {
+        new uR.db.ih.ModeChange({values_list: data.values_list});
+        riot.update();
+      },
+    });
+  }
 }
 
 uR.db.register("ih",[Mode,ModeChange])
@@ -42,7 +53,7 @@ ih.getLastModeChange = function() {
   <div>{ last_change && last_change.mode.name }</div>
 
   <script>
-this.on("route",function() {
+this.on("update",function() {
   this.last_change = ih.getLastModeChange();
 })
 openViewer(e) {
@@ -98,15 +109,7 @@ this.on("update", function() {
   })
 })
 setMode(e) {
-  this.ajax({
-    url: "/api/schema/ih.ModeChangeForm/",
-    method: "POST",
-    data: { mode: e.item.mode.id, created: moment().format("YYYY-MM-DD HH:mm") },
-    success: function(data) {
-      new uR.db.ih.ModeChange({values_list: data.values_list});
-      this.update();
-    },
-  });
+  new ModeChange({ mode: e.item.mode }).saveAjax(this);
 }
   </script>
 </mode-viewer>

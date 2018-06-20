@@ -181,6 +181,9 @@ class Task extends uR.db.DataModel {
     field = goal.started?'completed':'started';
     data[field] = now;
     goal.saveMe(riot_tag,data)
+    if (field == 'started' && goal.task['trigger-mode']) {
+      new ModeChange({mode: goal.task['trigger-mode']}).saveAjax(riot_tag);
+    }
   }
 }
 
