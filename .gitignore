@@ -9,7 +9,10 @@ db.sqlite3
 
 env/*
 .e/*
+src/*
 .dev
 src/*
 node_modules
 main/settings/local.py
+
+todo.org
