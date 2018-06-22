@@ -3,13 +3,9 @@
   <head>
     <title>Idle Hands</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    {% if settings.DEBUG %}
-    <link href="//beta.unrest.io/uc/uc-built.css" rel="stylesheet"></link>
-    {% endif %}
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
-    <link href="/static/less/base.less?{% now "Hi" %}" rel="stylesheet/less" type="text/css" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.2/less.min.js"></script>
+    <link href="{% static "ih-built.css" %}" rel="stylesheet" type="text/css" />
     <link type="image/x-icon" rel="shortcut icon" href="{% static "favicon.ico" %}" />
   </head>
   {% csrf_token %}
@@ -28,22 +24,16 @@
   <script src="//beta.unrest.io/vendor-built.js?{% now "Hi" %}"></script>
   <script src="//beta.unrest.io/unrest_full-built.js?{% now "Hi" %}"></script>
   {% if settings.DEBUG %}
+  <link href="//beta.unrest.io/uc/uc-built.css" rel="stylesheet"></link>
   <script src="//beta.unrest.io/uc/vendor-built.js"></script>
   <script src="//beta.unrest.io/uc/uc-built.js"></script>
-  <script src="{% static "data.js" %}"></script>
-  <script src="{% static "tests.js" %}"></script>
+  <script src="{% static "ih_test-built.js" %}"></script>
   <script>
     var KLOGGER_SELECTOR="#main";
     var DUMMY_USERS = {{ DUMMY_USERS|safe }};
   </script>
   {% endif %}
   {% compress js %}
-  <script src="{% static "main.js" %}"></script>
-  <script src="{% static "icon.js" %}"></script>
-  <script src="{% static "router.js" %}"></script>
+  <script src="{% static "ih-built.js" %}"></script>
   {% endcompress %}
-  <script type="riot/tag" src="{% static "task.tag" %}?{% now "Hi" %}"></script>
-  <script type="riot/tag" src="{% static "goal.tag" %}?{% now "Hi" %}"></script>
-  <script type="riot/tag" src="{% static "mode.tag" %}?{% now "Hi" %}"></script>
-  <script type="riot/tag" src="{% static "lap-counter.tag" %}?{% now "Hi" %}"></script>
 </html>
