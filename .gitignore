@@ -10,5 +10,6 @@ db.sqlite3
 env/*
 .e/*
 .dev
+src/*
 node_modules
 main/settings/local.py
