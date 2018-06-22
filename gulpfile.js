@@ -1,10 +1,10 @@
 var ezGulp = require("./ez-gulp");
 var argv = require("yargs").argv;
 
-function src(array) { return array.map(s => "src/"+s) }
+function _app(array) { return array.map(s => "app/"+s) }
 
 var JS_FILES = {
-  ih: src([
+  ih: _app([
     'goal.tag',
     'icon.js',
     'lap-counter.tag',
@@ -13,17 +13,17 @@ var JS_FILES = {
     'router.js',
     'task.tag',
   ]),
-  ih_test: src([
+  ih_test: _app([
     'data.js',
     'tests.js',
   ]),
 }
 
 var LESS_FILES = {
-  ih: src(['less/base.less']),
+  ih: _app(['less/base.less']),
 }
 
-var STATIC_FILES = src([
+var STATIC_FILES = _app([
   'icons',
   'data.js',
 ]);
