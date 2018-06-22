@@ -1,0 +1,134 @@
+body {
+  --gutter: 0.4rem;
+}
+@gutter: var(--gutter);
+@bottom-height: 60px;
+@blue: #5755d9;
+
+#main {
+  background: #ddd;
+  height: 100%;
+  width: 100%;
+}
+
+#content {
+  background: white;
+  height: 100%;
+  padding-bottom: @bottom-height;
+  overflow: scroll;
+}
+#content, .bottom-bar {
+  margin: 0 auto;
+  max-width: 100%;
+  width: 400px;
+}
+[ur-mode=add] {
+  .hide-add { display: none; }
+}
+[ur-mode=edit] {
+  .hide-edit { display: none; }
+}
+
+.card {
+  position: relative;
+  &:last-child { margin-bottom: 0; }
+  &,&:first-child { margin-bottom: @gutter; }
+  .card-, &.card- {
+    &header, &body, &.footer {
+      padding: @gutter;
+      padding-bottom: 0;
+      &:last-child { padding-bottom: .4rem; }
+    }
+  }
+}
+
+konsole ur-tabs.default .tab-anchors { top: auto; bottom: 100%; }
+
+.pointer { cursor: pointer; }
+
+.undo-delete {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.4rem;
+  height: 100%;
+  justify-content: space-between;
+  left: 0;
+  top: 0;
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+}
+
+task-list {
+  display: block;
+  position: relative;
+  .column { background: white; }
+}
+
+task-card {
+  .task-name { min-height: 1.4rem; } /* button height in spectre */
+}
+
+.flexy {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  .block { flex-basis: 100% }
+  .card:last-child { margin-bottom: @gutter; }
+}
+
+.bottom-bar {
+  align-items: center;
+  background: #f8f8f8;
+  display: flex;
+  bottom: 0;
+  height: @bottom-height;
+  justify-content: space-between;
+  left: 0;
+  right: 0;
+  position: fixed;
+  text-align: right;
+  &:after { display: none; }
+}
+
+.top-right {
+  position: absolute;
+  top: @gutter;
+  right: @gutter;
+}
+
+mode-viewer, mode-widget {
+  display: block;
+}
+
+ur-pagination .columns { margin-bottom: 0.8rem; }
+
+konsole {
+  width: 32px;
+  ur-tabs { display: none; }
+  body.konsole-open & {
+    width: 500px;
+    ur-tabs { display: block; }
+  }
+}
+
+[data-badge] {
+  position: relative;
+  &:before {
+    background: @blue;
+    border-radius: 50%;
+    color: white;
+    content: attr(data-badge);
+    font-size: 0.8em;
+    line-height: 1.2em;
+    position: absolute;
+    right: 2px;
+    text-align: center;
+    top: 2px;
+    width: 1.2em;
+  }
+}
+.mini-form form { margin: 0; }
+
+ur-admin-edit ur-form form { max-width: 400px; }
