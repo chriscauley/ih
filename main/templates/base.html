@@ -33,7 +33,5 @@
     var DUMMY_USERS = {{ DUMMY_USERS|safe }};
   </script>
   {% endif %}
-  {% compress js %}
   <script src="{% static "ih-built.js" %}"></script>
-  {% endcompress %}
 </html>
