@@ -12,7 +12,11 @@ var path = require("path");
 var rev = require('gulp-rev');
 
 module.exports = function(opts) {
-  var build_tasks = [ 'cp-static'];
+  opts.js = opts.js || {}; // javascript and riot files
+  opts.less = opts.less || {}; // css and less
+  opts.static = opts.static || []; // files to be directly copied over
+  opts.mustache = opts.mustache || []; // mustache templates to be processed
+  var build_tasks = ['cp-static'];
   var results = []
   for (var key in opts.js) {
     (function(key) {
@@ -61,18 +65,33 @@ module.exports = function(opts) {
     opts.renames && opts.renames.forEach(function(r) {
       ncp(path.join(__dirname,r[0]),path.join(DEST,r[1]));
     });
-  })
+  });
 
-  gulp.task('build-revision', function() {
-    gulp.src(results.map(s => path.join(opts.DEST,s)))
+  gulp.task('build-revision', build_tasks.slice(), function() {
+    return gulp.src(results.map(s => path.join(opts.DEST,s)))
       .pipe(rev())
       .pipe(gulp.dest(opts.DEST))
       .pipe(rev.manifest())
       .pipe(gulp.dest(opts.DEST))
   })
-
   build_tasks.push('build-revision');
-  console.log(build_tasks);
+
+  if (opts.mustache.length) {
+    var mustache = require("gulp-mustache");
+    var fs = require('fs');
+    gulp.task("build-mustache",build_tasks.slice(),function() {
+      var manifest = JSON.parse(fs.readFileSync(path.join(opts.DEST,"rev-manifest.json")));
+      for (var key in manifest) {
+        manifest[key.replace("-","").replace(".","")] = manifest[key]
+      }
+      return gulp.src(opts.mustache)
+        .pipe(mustache({
+          manifest: manifest
+        }))
+        .pipe(gulp.dest(opts.DEST));
+    });
+    build_tasks.push('build-mustache');
+  }
 
   gulp.task('watch', build_tasks, function () {
     for (var key in opts.js) {
