@@ -6,7 +6,6 @@ six
 psycopg2-binary
 django-compressor
 sorl-thumbnail
--e git+https://github.com/chriscauley/Django-Crop-Override-Field.git#egg=django-crop-override-field
 pillow
 
 django-annoying
@@ -15,3 +14,4 @@ todoist-python
 
 markdown
 html2text
+django-gulp-rev
