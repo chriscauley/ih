@@ -5,13 +5,13 @@ function _app(array) { return array.map(s => "app/"+s) }
 
 var JS_FILES = {
   ih: _app([
-    'goal.tag',
-    'icon.js',
-    'lap-counter.tag',
     'main.js',
-    'mode.tag',
+    'icon.js',
     'router.js',
     'task.tag',
+    'goal.tag',
+    'mode.tag',
+    'lap-counter.tag',
   ]),
   ih_test: _app([
     'data.js',
