@@ -10,6 +10,7 @@ INSTALLED_APPS = (
   'django.contrib.staticfiles',
   'django.contrib.sites',
 
+  'gulp_rev',
   'compressor',
   'sorl.thumbnail',
 

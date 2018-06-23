@@ -1,11 +1,11 @@
-{% load compress static %}
+{% load compress static rev %}
 <html>
   <head>
     <title>Idle Hands</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
-    <link href="{% static "ih-built.css" %}" rel="stylesheet" type="text/css" />
+    <link href="{% static_rev "ih-built.css" %}" rel="stylesheet" type="text/css" />
     <link type="image/x-icon" rel="shortcut icon" href="{% static "favicon.ico" %}" />
   </head>
   {% csrf_token %}
@@ -27,11 +27,11 @@
   <link href="//beta.unrest.io/uc/uc-built.css" rel="stylesheet"></link>
   <script src="//beta.unrest.io/uc/vendor-built.js"></script>
   <script src="//beta.unrest.io/uc/uc-built.js"></script>
-  <script src="{% static "ih_test-built.js" %}"></script>
+  <script src="{% static_rev "ih_test-built.js" %}"></script>
   <script>
     var KLOGGER_SELECTOR="#main";
     var DUMMY_USERS = {{ DUMMY_USERS|safe }};
   </script>
   {% endif %}
-  <script src="{% static "ih-built.js" %}"></script>
+  <script src="{% static_rev "ih-built.js" %}"></script>
 </html>
