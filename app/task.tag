@@ -8,14 +8,14 @@ class TaskGroup extends uR.db.Model {
   }
 }
 
-var FIRST_TIMES = {
+ih.FIRST_HOURS = {
   "Arm Curls": 9,
   "Beer": 19,
   "Eat": 10,
   "Smoke Cigarette": 11,
 }
 
-var MINUTES_BETWEEN = {
+ih.MINUTES_BETWEEN = {
   "Arm Curls": 3,
   "Beer": 90,
   "Eat": 6*60,
@@ -113,16 +113,17 @@ class Task extends uR.db.DataModel {
       if (this._calculating) { return "Calculating... (please refresh)"; }
       if (last) { // previous completion exists
         var nextimate = moment(last.completed);
+        var first_hour = ih.FIRST_HOURS[this.name] || 0;
         if (this.per_time != 1) { // things that should be done more than once on target day
           if (today == nextimate.format("YYYY-MM-DD")) { // goal completed today
-            nextimate = nextimate.add((MINUTES_BETWEEN[this.name] || 180),'minutes');
+            nextimate = nextimate.add(ih.MINUTES_BETWEEN[this.name] || 180,'minutes');
             if (today != nextimate.format("YYYY-MM-DD") // nextimate is tomorrow
                 || times_today >= this.per_time) { // or task completed enough today
               // so move into future however many intervals it should be
-              nextimate = moment().startOf("day").add(this.interval,"days").set("hour",FIRST_TIMES[this.name] || 0);
+              nextimate = moment().startOf("day").add(this.interval,"days").set("hour",first_hour);
             }
           } else { // no goal completed today
-            nextimate = moment().startOf("day").set("hour",FIRST_TIMES[this.name] || 0);
+            nextimate = moment().startOf("day").set("hour",first_hour);
           }
         }
         else if (this.interval == "monthly") {
